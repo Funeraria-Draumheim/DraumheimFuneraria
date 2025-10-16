@@ -1,0 +1,155 @@
+/* Importar las variables de color globales */
+/* Nota: Si no usas módulos CSS, las variables de globals.css ya están disponibles */
+
+.login-card-container {
+  width: 100%;
+  max-width: 450px; /* Ancho del formulario */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.login-card {
+  background-color: var(--color-white);
+  padding: 40px 30px; /* Padding interno */
+  border-radius: var(--border-radius-card);
+  box-shadow: var(--shadow-light); /* Sombra para darle profundidad */
+  text-align: center; /* Centrar el título y subtítulo */
+}
+
+.card-title {
+  font-size: 2em;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 5px;
+  color: var(--color-primary); /* Título en color primario */
+}
+
+.card-subtitle {
+  font-size: 1em;
+  color: var(--color-text-light);
+  margin-bottom: 30px; /* Espacio antes de que inicie el formulario */
+}
+
+/* Estilos de los campos de entrada */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: left; /* Alineación del texto y las etiquetas */
+}
+
+.input-group label {
+  display: block; /* La etiqueta ocupa toda la línea */
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--color-text-dark);
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--border-radius-input);
+  font-size: 1em;
+  box-sizing: border-box; /* Crucial para que el padding no desborde el ancho */
+  transition: border-color 0.3s;
+}
+
+.input-group input:focus {
+  border-color: var(--color-primary); /* Resaltar al enfocar */
+  outline: none;
+}
+
+/* Enlace Olvidé mi contraseña */
+.forgot-password {
+  text-align: right; /* Alinear a la derecha como en la imagen */
+  margin-top: -10px; /* Para acercarlo un poco al campo de contraseña */
+  margin-bottom: 10px;
+}
+
+.forgot-password a {
+  color: var(--color-text-light);
+  text-decoration: none;
+  font-size: 0.9em;
+}
+
+.forgot-password a:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+
+/* Estilos del botón principal */
+.login-button {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  padding: 14px 20px;
+  border-radius: var(--border-radius-input);
+  cursor: pointer;
+  font-size: 1.1em;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: background-color 0.3s, transform 0.1s;
+}
+
+.login-button:hover {
+  background-color: #6a1b9a; /* Un tono más oscuro de púrpura */
+}
+
+.login-button:active {
+  transform: scale(0.99);
+}
+
+/* Enlace de Registro (pie de página) */
+.register-link {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border-light); /* Línea de separación sutil */
+  font-size: 0.95em;
+  color: var(--color-text-light);
+}
+
+.register-link a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}
+
+/* Estilos para el enlace de administrador */
+.admin-link {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.admin-button {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.admin-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  color: white;
+  text-decoration: none;
+}
+
+/* Asegurar que el enlace se vea bien en todos los estados */
+.admin-button:visited,
+.admin-button:active {
+  color: white;
+  text-decoration: none;
+}

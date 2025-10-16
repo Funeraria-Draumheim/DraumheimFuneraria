@@ -1,0 +1,93 @@
+/* Variables CSS */
+:root {
+  --color-primary: #8a2be2; /* Un tono de púrpura, similar al del botón */
+  --color-background: #f0e6fa; /* Un púrpura muy claro para el fondo */
+  --color-text-dark: #333;
+  --color-text-light: #666;
+  --color-border-light: #ddd;
+  --color-white: #fff;
+  --shadow-light: 0 4px 10px rgba(0, 0, 0, 0.05);
+  --border-radius-card: 15px;
+  --border-radius-input: 8px;
+}
+
+/* Reset Básico y Estilos Globales */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-background); /* Fondo de la página completo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Asegura que ocupe toda la altura de la ventana */
+  color: var(--color-text-dark);
+}
+
+#root {
+  display: contents; /* Permite que el body gestione el layout de App directamente */
+}
+
+/* Estilos para contenedores principales (el layout que envuelve todo) */
+.login-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px; /* Espacio entre el panel de imagen y el formulario */
+  padding: 40px;
+  background-color: var(--color-background); /* El mismo fondo para coherencia */
+  width: 100%;
+  max-width: 1200px; /* Ancho máximo para el contenido */
+  box-sizing: border-box; /* Incluye padding en el ancho total */
+}
+
+/* Contenedor del panel izquierdo (imagen y texto) */
+.left-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.image-container {
+  width: 350px; /* Ancho fijo para la imagen */
+  height: 350px; /* Alto fijo para la imagen */
+  border-radius: var(--border-radius-card); /* Bordes redondeados */
+  overflow: hidden; /* Asegura que la imagen no se desborde */
+  box-shadow: var(--shadow-light); /* Sombra sutil */
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Cubre el área manteniendo la proporción */
+}
+
+.quote-container {
+  font-style: italic;
+  color: var(--color-text-light);
+  font-size: 1.1em;
+  max-width: 300px;
+}
+
+.separator {
+  width: 100px;
+  height: 2px;
+  background-color: var(--color-primary);
+  border-radius: 1px;
+  margin: 10px 0; /* Espacio arriba y abajo del separador */
+}
+
+/* Adaptación para pantallas más pequeñas (opcional, pero buena práctica) */
+@media (max-width: 900px) {
+  .login-page-container {
+    flex-direction: column; /* Apila los elementos verticalmente */
+    gap: 30px;
+  }
+
+  .left-panel {
+    display: none; /* Oculta el panel izquierdo en móviles para simplificar */
+  }
+}
