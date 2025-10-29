@@ -7,6 +7,8 @@ import Cremacion from './components/Cremacion';
 import PlanFunerario from './components/PlanFunerario';
 import Urnas from './components/Urnas';
 import ColeccionUrnas from './components/ColeccionUrnas';
+import AdminPanel from './components/AdminPanel';
+import Identificate from './components/identificate'; // Nuevo componente
 import './App.css';
 
 // Componente para el Panel Izquierdo (Imagen/Cita)
@@ -25,8 +27,11 @@ const LeftPanel = ({ imageUrl, quoteText }) => (
 function App() {
   return (
     <Routes>
-      {/* RUTA PRINCIPAL (DEFAULT): CARGA EL HOME PAGE */}
-      <Route path="/" element={<HomePage />} />
+      {/* RUTA PRINCIPAL (DEFAULT): CARGA EL IDENTIFICATE */}
+      <Route path="/" element={<Identificate />} />
+
+      {/* RUTA DEL HOME PAGE */}
+      <Route path="/home" element={<HomePage />} />
 
       {/* RUTA DE INICIAR SESIÓN: "/login" */}
       <Route
@@ -76,6 +81,8 @@ function App() {
       <Route path="/nosotros" element={<HomePage />} />
       <Route path="/testimonios" element={<HomePage />} />
       <Route path="/contacto" element={<HomePage />} />
+
+      <Route path="/adminpanel" element={<AdminPanel />} />
 
       {/* RUTA 404 - Página no encontrada */}
       <Route path="*" element={<HomePage />} />

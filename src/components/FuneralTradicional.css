@@ -728,6 +728,461 @@
     font-size: 0.875rem;
 }
 
+/* Sección de Planes */
+.plans-section-funeral {
+    padding: 5rem 1rem;
+    background: linear-gradient(135deg, #f8f4ff 0%, #f0ebff 100%);
+}
+
+.plans-container-funeral {
+    max-width: 80rem;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.plans-title-funeral {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    margin-bottom: 1rem;
+}
+
+.plans-subtitle-funeral {
+    font-size: 1.25rem;
+    color: var(--color-text-light);
+    margin-bottom: 4rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.plans-grid-funeral {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.plan-card-funeral {
+    background: var(--color-white);
+    border-radius: var(--border-radius-card);
+    padding: 2.5rem 2rem;
+    box-shadow: 0 20px 25px -5px var(--color-shadow);
+    position: relative;
+    transition: all 0.3s ease;
+    border: 2px solid var(--color-border-light);
+}
+
+.plan-card-funeral:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border-color: var(--color-primary);
+}
+
+.plan-badge {
+    position: absolute;
+    top: -12px;
+    right: 2rem;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 25px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.plan-header-funeral {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--color-border-light);
+}
+
+.plan-name {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--color-text-dark);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.plan-price {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--color-primary);
+    margin: 0;
+}
+
+.standard-plan .plan-price {
+    color: #ff6b6b;
+}
+
+.premium-plan .plan-price {
+    color: #f093fb;
+}
+
+.plan-features-funeral {
+    margin-bottom: 2.5rem;
+    text-align: left;
+}
+
+.feature-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.feature-check {
+    color: #4cd964;
+    font-weight: bold;
+    margin-right: 1rem;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+.feature-item span:last-child {
+    color: var(--color-text);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.plan-button-funeral {
+    width: 100%;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 9999px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.plan-button-funeral:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.basic-btn {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+}
+
+.standard-btn {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+}
+
+.premium-btn {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+}
+
+/* Modal Styles para Planes */
+.modal-overlay-plan {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 20px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content-plan {
+    background: var(--color-white);
+    border-radius: var(--border-radius-card);
+    padding: 0;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    animation: slideUp 0.3s ease-out;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modal-close-plan {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--color-text-light);
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    z-index: 10;
+}
+
+.modal-close-plan:hover {
+    background-color: var(--color-gray-light);
+    color: var(--color-primary);
+    transform: rotate(90deg);
+}
+
+.modal-header-plan {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: var(--color-white);
+    padding: 2.5rem 2rem 2rem;
+    border-radius: var(--border-radius-card) var(--border-radius-card) 0 0;
+    text-align: center;
+}
+
+.modal-header-plan h2 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-white);
+    font-weight: 700;
+}
+
+.modal-header-plan p {
+    opacity: 0.9;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.modal-form-plan {
+    padding: 2.5rem 2rem;
+}
+
+.form-row-plan {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.form-group-plan {
+    margin-bottom: 1.5rem;
+}
+
+.form-group-plan label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--color-text-dark);
+    font-size: 0.95rem;
+}
+
+.form-group-plan input,
+.form-group-plan select,
+.form-group-plan textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid var(--color-border-light);
+    border-radius: var(--border-radius-input);
+    font-size: 1rem;
+    transition: all 0.3s;
+    background-color: var(--color-white);
+    font-family: inherit;
+}
+
+.form-group-plan input:focus,
+.form-group-plan select:focus,
+.form-group-plan textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+}
+
+.form-group-plan textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+}
+
+.plan-summary-plan {
+    background: var(--color-gray-light);
+    padding: 1.5rem;
+    border-radius: var(--border-radius-input);
+    margin: 1.5rem 0;
+    border-left: 4px solid var(--color-primary);
+}
+
+.plan-summary-plan h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text-dark);
+    margin-bottom: 1rem;
+}
+
+.plan-summary-plan ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem 0;
+}
+
+.plan-summary-plan li {
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: flex-start;
+}
+
+.plan-summary-plan li:before {
+    content: "✓";
+    color: #4cd964;
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+.plan-price-plan {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    text-align: center;
+    margin: 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border-light);
+}
+
+.modal-actions-plan {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    justify-content: flex-end;
+}
+
+.cancel-btn-plan,
+.submit-btn-plan {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: var(--border-radius-input);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.cancel-btn-plan {
+    background-color: var(--color-gray-light);
+    color: var(--color-text);
+    border: 2px solid var(--color-border-light);
+}
+
+.cancel-btn-plan:hover {
+    background-color: #e9ecef;
+    transform: translateY(-2px);
+}
+
+.submit-btn-plan {
+    color: var(--color-white);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.basic-btn {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+}
+
+.standard-btn {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+}
+
+.premium-btn {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+}
+
+.submit-btn-plan:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design para Planes */
+@media (min-width: 768px) {
+    .plans-grid-funeral {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .form-row-plan {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .modal-content-plan {
+        max-width: 650px;
+    }
+}
+
+@media (max-width: 768px) {
+    .plans-grid-funeral {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .plan-card-funeral {
+        padding: 2rem 1.5rem;
+    }
+    
+    .modal-actions-plan {
+        flex-direction: column;
+    }
+    
+    .cancel-btn-plan,
+    .submit-btn-plan {
+        width: 100%;
+    }
+    
+    .modal-content-plan {
+        margin: 20px;
+        max-height: 85vh;
+    }
+}
+
+@media (max-width: 480px) {
+    .plans-title-funeral {
+        font-size: 2rem;
+    }
+    
+    .plan-name {
+        font-size: 1.25rem;
+    }
+    
+    .plan-price {
+        font-size: 2rem;
+    }
+    
+    .modal-form-plan {
+        padding: 2rem 1.5rem;
+    }
+}
+
+
 /* Responsive Design */
 @media (min-width: 768px) {
     .hero-section {

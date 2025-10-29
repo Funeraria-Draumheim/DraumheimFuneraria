@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './RegisterForm.css';
 
 function RegisterForm() {
+  //Parte del registro de Usuarios conectado con la bdf|
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -82,6 +83,7 @@ function RegisterForm() {
     }
   };
 
+  //Parte del diseño del registe
   return (
     <div className="register-card-container">
       <div className="register-card">

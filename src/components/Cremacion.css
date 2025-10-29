@@ -284,12 +284,32 @@
     text-align: center;
     padding: 0 1rem;
     margin-top: 80px;
-    background: linear-gradient(to bottom, #FFECD5, #FAD0A8 10%, #FFFFFF 95%);
+    background-image: url('../../public/fondocremacion.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: white; /* ← Cambiar color de texto a blanco */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* ← Sombra para mejor legibilidad */
+}
+
+.hero-overlay-cremacion {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.3) 0%,
+        rgba(0, 0, 0, 0.5) 50%,
+        rgba(0, 0, 0, 0.7) 100%
+    ); /* ← Gradiente para mejor contraste */
+    z-index: 1;
 }
 
 .hero-content-cremacion {
     position: relative;
-    z-index: 10;
+    z-index: 10; /* ← Encima del overlay */
     max-width: 80rem;
     margin: 0 auto;
     padding: 0 1rem 3rem;
@@ -298,14 +318,14 @@
 .hero-title-cremacion {
     font-size: 3rem;
     font-weight: 800;
-    color: var(--color-text-dark);
+    color: white; /* ← Cambiar a blanco */
     line-height: 1.2;
     margin-bottom: 1.5rem;
 }
 
 .hero-subtitle-cremacion {
     font-size: 1.5rem;
-    color: var(--color-text);
+    color: rgba(255, 255, 255, 0.9); /* ← Blanco semitransparente */
     font-weight: 300;
     margin-bottom: 1.5rem;
 }
@@ -319,19 +339,21 @@
 }
 
 .nav-link-internal {
-    color: var(--color-text);
+    color: rgba(255, 255, 255, 0.9); /* ← Blanco semitransparente */
     font-weight: 500;
     text-decoration: none;
     transition: color 0.3s;
     font-size: 0.9rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .nav-link-internal:hover {
-    color: var(--color-primary);
+    color: white; /* ← Blanco sólido al hover */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
 }
 
 .nav-separator {
-    color: var(--color-border-light);
+    color: rgba(255, 255, 255, 0.5); /* ← Separador semitransparente */
 }
 
 /* Fire Section */
@@ -1192,4 +1214,656 @@
 
 .modal-content-cremacion::-webkit-scrollbar-thumb:hover {
     background: var(--color-primary-dark);
+}
+
+/* Sección de Planes de Cremación */
+.plans-section-cremacion {
+    padding: 5rem 1rem;
+    background: linear-gradient(135deg, #f8f4ff 0%, #f0ebff 100%);
+}
+
+.plans-container-cremacion {
+    max-width: 80rem;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.plans-title-cremacion {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    margin-bottom: 1rem;
+}
+
+.plans-subtitle-cremacion {
+    font-size: 1.25rem;
+    color: var(--color-text-light);
+    margin-bottom: 4rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.plans-grid-cremacion {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.plan-card-cremacion {
+    background: var(--color-white);
+    border-radius: var(--border-radius-card);
+    padding: 2.5rem 2rem;
+    box-shadow: 0 20px 25px -5px var(--color-shadow);
+    position: relative;
+    transition: all 0.3s ease;
+    border: 2px solid var(--color-border-light);
+}
+
+.plan-card-cremacion:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border-color: var(--color-primary);
+}
+
+.plan-badge-cremacion {
+    position: absolute;
+    top: -12px;
+    right: 2rem;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 25px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.plan-header-cremacion {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--color-border-light);
+}
+
+.plan-name-cremacion {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--color-text-dark);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.plan-price-cremacion {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--color-primary);
+    margin: 0;
+}
+
+.standard-plan-cremacion .plan-price-cremacion {
+    color: #ff6b6b;
+}
+
+.premium-plan-cremacion .plan-price-cremacion {
+    color: #00b894;
+}
+
+.plan-features-cremacion {
+    margin-bottom: 2.5rem;
+    text-align: left;
+}
+
+.feature-item-cremacion {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.feature-check-cremacion {
+    color: #4cd964;
+    font-weight: bold;
+    margin-right: 1rem;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+.feature-item-cremacion span:last-child {
+    color: var(--color-text);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.plan-button-cremacion {
+    width: 100%;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 9999px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.plan-button-cremacion:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.basic-btn-cremacion {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+}
+
+.standard-btn-cremacion {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+}
+
+.premium-btn-cremacion {
+    background: linear-gradient(135deg, #00b894, #00a085);
+}
+
+/* Modal Styles para Planes de Cremación */
+.modal-overlay-cremacion {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 20px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content-cremacion {
+    background: var(--color-white);
+    border-radius: var(--border-radius-card);
+    padding: 0;
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    animation: slideUp 0.3s ease-out;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modal-close-cremacion {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--color-text-light);
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    z-index: 10;
+}
+
+.modal-close-cremacion:hover {
+    background-color: var(--color-gray-light);
+    color: var(--color-primary);
+    transform: rotate(90deg);
+}
+
+.modal-header-cremacion {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: var(--color-white);
+    padding: 2.5rem 2rem 2rem;
+    border-radius: var(--border-radius-card) var(--border-radius-card) 0 0;
+    text-align: center;
+}
+
+.modal-header-cremacion h2 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-white);
+    font-weight: 700;
+}
+
+.modal-header-cremacion p {
+    opacity: 0.9;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.modal-form-cremacion {
+    padding: 2.5rem 2rem;
+}
+
+.form-row-cremacion {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.form-group-cremacion {
+    margin-bottom: 1.5rem;
+}
+
+.form-group-cremacion label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--color-text-dark);
+    font-size: 0.95rem;
+}
+
+.form-group-cremacion input,
+.form-group-cremacion select,
+.form-group-cremacion textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid var(--color-border-light);
+    border-radius: var(--border-radius-input);
+    font-size: 1rem;
+    transition: all 0.3s;
+    background-color: var(--color-white);
+    font-family: inherit;
+}
+
+.form-group-cremacion input:focus,
+.form-group-cremacion select:focus,
+.form-group-cremacion textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+}
+
+.form-group-cremacion textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+}
+
+/* Secciones específicas del formulario de cremación */
+.cremation-type-section {
+    background: var(--color-gray-light);
+    padding: 1.5rem;
+    border-radius: var(--border-radius-input);
+    margin: 1.5rem 0;
+    border-left: 4px solid var(--color-primary);
+}
+
+.cremation-type-section h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text-dark);
+    margin-bottom: 1rem;
+}
+
+.cremation-options {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.cremation-option {
+    padding: 1rem;
+    border: 2px solid var(--color-border-light);
+    border-radius: var(--border-radius-input);
+    cursor: pointer;
+    transition: all 0.3s;
+    background: var(--color-white);
+}
+
+.cremation-option:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+}
+
+.cremation-option.selected {
+    border-color: var(--color-primary);
+    background: rgba(108, 92, 231, 0.05);
+}
+
+.cremation-option-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.cremation-option-icon {
+    font-size: 1.5rem;
+}
+
+.cremation-option-title {
+    font-weight: 600;
+    color: var(--color-text-dark);
+    margin: 0;
+}
+
+.cremation-option-description {
+    font-size: 0.9rem;
+    color: var(--color-text-light);
+    margin: 0;
+}
+
+/* Opciones dinámicas basadas en tipo de cremación */
+.cremation-details {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: var(--border-radius-input);
+    margin: 1rem 0;
+    border: 1px solid var(--color-border-light);
+}
+
+.cremation-details h5 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-dark);
+    margin-bottom: 1rem;
+}
+
+.urna-options {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.urna-option {
+    padding: 1rem;
+    border: 2px solid var(--color-border-light);
+    border-radius: var(--border-radius-input);
+    cursor: pointer;
+    transition: all 0.3s;
+    background: var(--color-white);
+}
+
+.urna-option:hover {
+    border-color: var(--color-primary);
+}
+
+.urna-option.selected {
+    border-color: var(--color-primary);
+    background: rgba(108, 92, 231, 0.05);
+}
+
+.urna-option-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.urna-option-icon {
+    font-size: 1.25rem;
+}
+
+.urna-option-title {
+    font-weight: 600;
+    color: var(--color-text-dark);
+    margin: 0;
+}
+
+.urna-option-description {
+    font-size: 0.85rem;
+    color: var(--color-text-light);
+    margin: 0;
+}
+
+.urna-option-price {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-top: 0.5rem;
+}
+
+/* Ubicaciones de cremación */
+.location-options {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.location-option {
+    padding: 1rem;
+    border: 2px solid var(--color-border-light);
+    border-radius: var(--border-radius-input);
+    cursor: pointer;
+    transition: all 0.3s;
+    background: var(--color-white);
+}
+
+.location-option:hover {
+    border-color: var(--color-primary);
+}
+
+.location-option.selected {
+    border-color: var(--color-primary);
+    background: rgba(108, 92, 231, 0.05);
+}
+
+.location-option-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.location-option-title {
+    font-weight: 600;
+    color: var(--color-text-dark);
+    margin: 0;
+}
+
+.location-option-description {
+    font-size: 0.85rem;
+    color: var(--color-text-light);
+    margin: 0;
+}
+
+.plan-summary-cremacion {
+    background: var(--color-gray-light);
+    padding: 1.5rem;
+    border-radius: var(--border-radius-input);
+    margin: 1.5rem 0;
+    border-left: 4px solid var(--color-primary);
+}
+
+.plan-summary-cremacion h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text-dark);
+    margin-bottom: 1rem;
+}
+
+.plan-summary-cremacion ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem 0;
+}
+
+.plan-summary-cremacion li {
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: flex-start;
+}
+
+.plan-summary-cremacion li:before {
+    content: "✓";
+    color: #4cd964;
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+.plan-price-cremacion-modal {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    text-align: center;
+    margin: 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border-light);
+}
+
+.modal-actions-cremacion {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    justify-content: flex-end;
+}
+
+.cancel-btn-cremacion,
+.submit-btn-cremacion {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: var(--border-radius-input);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.cancel-btn-cremacion {
+    background-color: var(--color-gray-light);
+    color: var(--color-text);
+    border: 2px solid var(--color-border-light);
+}
+
+.cancel-btn-cremacion:hover {
+    background-color: #e9ecef;
+    transform: translateY(-2px);
+}
+
+.submit-btn-cremacion {
+    color: var(--color-white);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.basic-btn-modal {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+}
+
+.standard-btn-modal {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+}
+
+.premium-btn-modal {
+    background: linear-gradient(135deg, #00b894, #00a085);
+}
+
+.submit-btn-cremacion:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design para Planes de Cremación */
+@media (min-width: 768px) {
+    .plans-grid-cremacion {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .form-row-cremacion {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .cremation-options {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .urna-options {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .location-options {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .modal-content-cremacion {
+        max-width: 750px;
+    }
+}
+
+@media (max-width: 768px) {
+    .plans-grid-cremacion {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .plan-card-cremacion {
+        padding: 2rem 1.5rem;
+    }
+    
+    .modal-actions-cremacion {
+        flex-direction: column;
+    }
+    
+    .cancel-btn-cremacion,
+    .submit-btn-cremacion {
+        width: 100%;
+    }
+    
+    .modal-content-cremacion {
+        margin: 20px;
+        max-height: 85vh;
+    }
+    
+    .cremation-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .urna-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .plans-title-cremacion {
+        font-size: 2rem;
+    }
+    
+    .plan-name-cremacion {
+        font-size: 1.25rem;
+    }
+    
+    .plan-price-cremacion {
+        font-size: 2rem;
+    }
+    
+    .modal-form-cremacion {
+        padding: 2rem 1.5rem;
+    }
 }

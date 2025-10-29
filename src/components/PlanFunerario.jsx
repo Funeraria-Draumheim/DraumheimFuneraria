@@ -2,14 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './PlanFunerario.css';
 
-// Assets
-const HEADER_BG = "https://placehold.co/1920x600/594848/FAD0A8?text=Bosque+al+Atardecer+con+Caminos";
-const FAMILY_IMAGE = "https://placehold.co/400x300/A0C0E0/555555?text=Padre+e+Hija+en+el+Campo";
-const BASIC_PLAN_IMAGE = "https://placehold.co/300x200/5D5D81/FFFFFF?text=Urna+Sencilla+y+Flores";
-const STANDARD_PLAN_IMAGE = "https://placehold.co/300x200/F4D8D8/5D5D81?text=Sala+de+Velación+Elegante";
-const PREMIUM_PLAN_IMAGE = "https://placehold.co/300x200/FFEECC/5D5D81?text=Capilla+Premium+y+Arreglos";
+const Fondo = "https://storage.googleapis.com/uxpilot-auth.appspot.com/6d652cea1f-d8ed739fd56344770b38.png";
+const Familia = "https://storage.googleapis.com/uxpilot-auth.appspot.com/7352741237-ea9657fb30618a722ad9.png";
+const Plan_Basico = "https://storage.googleapis.com/uxpilot-auth.appspot.com/c30fc49b7f-e594311283f960ed13aa.png";
+const Plan_Estandar = "https://storage.googleapis.com/uxpilot-auth.appspot.com/a8d9cbc0d0-20f4d744a1860ee0d103.png";
+const Plan_Premium = "https://storage.googleapis.com/uxpilot-auth.appspot.com/5f7d583b77-e2164749d2f07316421c.png";
 
-// Datos para el Navbar
+// Datos del Navbar
 const servicesData = [
     { name: "Funeral Tradicional", path: "/servicios/tradicional" },
     { name: "Cremación", path: "/servicios/cremacion" },
@@ -17,15 +16,170 @@ const servicesData = [
     { name: "Urnas", path: "/servicios/urnas" }
 ];
 
-// COMPONENTE NAVBAR
-const Navbar = ({ services }) => {
+const EditarPerfilModal = ({ isOpen, onClose, usuario, onGuardar }) => {
+    const modalRef = useRef(null);
+    const [formData, setFormData] = useState({
+        nombre: '',
+        email: '',
+        telefono: '',
+        password: ''
+    });
+    const [cargando, setCargando] = useState(false);
+    const [mensaje, setMensaje] = useState('');
+
+    //Cargar los datos para el modal edit
+    useEffect(() => {
+        if (usuario && isOpen) {
+            setFormData({
+                nombre: usuario.nombre_completo || '',
+                email: usuario.email || '',
+                telefono: usuario.telefono || '',
+                password: ''
+            });
+            setMensaje('');
+        }
+    }, [usuario, isOpen]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (modalRef.current && !modalRef.current.contains(event.target)) {
+                onClose();
+            }
+        };
+
+        const handleEscape = (event) => {
+            if (event.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+            document.addEventListener('keydown', handleEscape);
+            document.body.style.overflow = 'hidden';
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('keydown', handleEscape);
+            document.body.style.overflow = 'unset';
+        };
+    }, [isOpen, onClose]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setCargando(true);
+        setMensaje('');
+
+        try {
+            await onGuardar({
+                id: usuario.id,
+                ...formData
+            });
+            setMensaje('¡Perfil actualizado correctamente!');
+            setTimeout(() => {
+                onClose();
+            }, 1000);
+        } catch (error) {
+            setMensaje('Error al actualizar el perfil');
+        } finally {
+            setCargando(false);
+        }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="modal-overlay">
+            <div className="modal-content" ref={modalRef}>
+                <button className="modal-close" onClick={onClose}>×</button>
+
+                <div className="modal-header">
+                    <h2>Editar Perfil</h2>
+                    <p>Actualiza tu información personal</p>
+                </div>
+
+                <form className="asesoria-form" onSubmit={handleSubmit}>
+                    <div className="input-group">
+                        <label htmlFor="nombre">Nombre Completo *</label>
+                        <input
+                            type="text"
+                            id="nombre"
+                            value={formData.nombre}
+                            onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                            placeholder="Tu nombre completo"
+                            required
+                        />
+                    </div>
+
+                    <div className="input-group">
+                        <label htmlFor="email">Correo Electrónico *</label>
+                        <input
+                            type="email"
+                            id="email"
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            placeholder="tu@email.com"
+                            required
+                        />
+                    </div>
+
+                    <div className="input-group">
+                        <label htmlFor="telefono">Teléfono</label>
+                        <input
+                            type="tel"
+                            id="telefono"
+                            value={formData.telefono}
+                            onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
+                            placeholder="Tu número telefónico"
+                        />
+                    </div>
+
+                    <div className="input-group">
+                        <label htmlFor="password">Nueva Contraseña (opcional)</label>
+                        <input
+                            type="password"
+                            id="password"
+                            value={formData.password}
+                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                            placeholder="Dejar en blanco para no cambiar"
+                        />
+                    </div>
+
+                    {mensaje && (
+                        <div className={`mensaje ${mensaje.includes('Error') ? 'error' : 'exito'}`}>
+                            {mensaje}
+                        </div>
+                    )}
+
+                    <div className="form-actions">
+                        <button type="button" className="cancel-button" onClick={onClose}>
+                            Cancelar
+                        </button>
+                        <button type="submit" className="submit-button" disabled={cargando}>
+                            {cargando ? 'Guardando...' : 'Guardar Cambios'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+//NAVBAR
+const Navbar = ({ services, usuario, onEditarPerfil, onCerrarSesion }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const userDropdownRef = useRef(null);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setIsDropdownOpen(false);
+            }
+            if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
+                setIsUserDropdownOpen(false);
             }
         };
 
@@ -35,12 +189,14 @@ const Navbar = ({ services }) => {
         };
     }, []);
 
-    const handleDropdownToggle = () => {
-        setIsDropdownOpen(!isDropdownOpen);
+    const handleCerrarSesion = () => {
+        onCerrarSesion();
+        setIsUserDropdownOpen(false);
     };
 
-    const handleDropdownItemClick = () => {
-        setIsDropdownOpen(false);
+    const handleEditarPerfil = () => {
+        onEditarPerfil();
+        setIsUserDropdownOpen(false);
     };
 
     return (
@@ -55,7 +211,7 @@ const Navbar = ({ services }) => {
                     <div
                         className="nav-item nav-dropdown"
                         ref={dropdownRef}
-                        onClick={handleDropdownToggle}
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
                         Servicios <span className="dropdown-arrow">▼</span>
 
@@ -66,7 +222,7 @@ const Navbar = ({ services }) => {
                                         key={service.path}
                                         to={service.path}
                                         className="dropdown-item"
-                                        onClick={handleDropdownItemClick}
+                                        onClick={() => setIsDropdownOpen(false)}
                                     >
                                         {service.name}
                                     </Link>
@@ -79,17 +235,39 @@ const Navbar = ({ services }) => {
                     <Link to="/contacto" className="nav-item">Contacto</Link>
                 </div>
 
-                <Link to="/login">
-                    <button className="nav-login-button">
-                        Iniciar Sesión
-                    </button>
-                </Link>
+                {usuario ? (
+                    <div
+                        className="nav-item nav-dropdown"
+                        ref={userDropdownRef}
+                        onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                    >
+                        <span>Bienvenido, {usuario.nombre_completo}</span>
+                        <span className="dropdown-arrow">▼</span>
+
+                        {isUserDropdownOpen && (
+                            <div className="dropdown-menu">
+                                <button className="dropdown-item" onClick={handleEditarPerfil}>
+                                    ✏️ Editar Cuenta
+                                </button>
+                                <button className="dropdown-item" onClick={handleCerrarSesion}>
+                                    🚪 Cerrar Sesión
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <Link to="/login">
+                        <button className="nav-login-button">
+                            Iniciar Sesión
+                        </button>
+                    </Link>
+                )}
             </div>
         </nav>
     );
 };
 
-// COMPONENTE FOOTER
+//FOOTER
 const Footer = () => (
     <footer className="footer">
         <div className="footer-content">
@@ -121,7 +299,6 @@ const Footer = () => (
     </footer>
 );
 
-// COMPONENTE MODAL BASE
 const BaseModal = ({ isOpen, onClose, children, className = "" }) => {
     const modalRef = useRef(null);
 
@@ -163,19 +340,19 @@ const BaseModal = ({ isOpen, onClose, children, className = "" }) => {
     );
 };
 
-// MODAL PLAN BÁSICO
+// MODAL PLAN BASICO
 const ModalBasico = ({ isOpen, onClose }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
-        alert('¡Gracias! Hemos recibido tu solicitud para el Plan Básico. Nos contactaremos contigo en breve.');
+        alert('¡Gracias! Hemos recibido tu solicitud para el Plan Basico. Nos contactaremos contigo en breve.');
         onClose();
     };
 
     return (
         <BaseModal isOpen={isOpen} onClose={onClose}>
             <div className="modal-header">
-                <h2>Plan Básico - Solicitud</h2>
-                <p>Complete el formulario para obtener su Plan Básico</p>
+                <h2>Plan Basico</h2>
+                <p>Complete el formulario para obtener su Plan Basico</p>
             </div>
 
             <form className="asesoria-form" onSubmit={handleSubmit}>
@@ -210,12 +387,12 @@ const ModalBasico = ({ isOpen, onClose }) => {
                 </div>
 
                 <div className="benefits-notice">
-                    <h4>🎯 Resumen del Plan Básico</h4>
+                    <h4>Resumen del Plan Basico</h4>
                     <ul>
-                        <li>✓ Servicio de cremación simple o sepelio</li>
-                        <li>✓ Asesoría legal y documentación básica</li>
-                        <li>✓ Traslado local dentro de la ciudad</li>
-                        <li>✓ Urna o ataúd estándar</li>
+                        <li>Servicio de cremación simple o sepelio</li>
+                        <li>Asesoría legal y documentación básica</li>
+                        <li>Traslado local dentro de la ciudad</li>
+                        <li>Urna o ataúd estándar</li>
                     </ul>
                     <p className="plan-price">Desde: <strong>S/ 1,650</strong></p>
                 </div>
@@ -233,7 +410,7 @@ const ModalBasico = ({ isOpen, onClose }) => {
     );
 };
 
-// MODAL PLAN ESTÁNDAR
+// MODAL PLAN ESTANDAR
 const ModalEstandar = ({ isOpen, onClose }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -244,7 +421,7 @@ const ModalEstandar = ({ isOpen, onClose }) => {
     return (
         <BaseModal isOpen={isOpen} onClose={onClose}>
             <div className="modal-header">
-                <h2>Plan Estándar - Personalización</h2>
+                <h2>Plan Estándar</h2>
                 <p>Complete el formulario para personalizar su Plan Estándar</p>
             </div>
 
@@ -282,13 +459,13 @@ const ModalEstandar = ({ isOpen, onClose }) => {
                 </div>
 
                 <div className="benefits-notice">
-                    <h4>🎯 Resumen del Plan Estándar</h4>
+                    <h4> Resumen del Plan Estándar</h4>
                     <ul>
-                        <li>✓ Servicio integral con velación de 24 horas</li>
-                        <li>✓ Sala de velación privada y arreglos florales</li>
-                        <li>✓ Gestión completa de trámites</li>
-                        <li>✓ Opciones mejoradas de urnas o ataúdes</li>
-                        <li>✓ Catering ligero para asistentes (opcional)</li>
+                        <li>Servicio integral con velación de 24 horas</li>
+                        <li>Sala de velación privada y arreglos florales</li>
+                        <li>Gestión completa de trámites</li>
+                        <li>Opciones mejoradas de urnas o ataúdes</li>
+                        <li>Catering ligero para asistentes (opcional)</li>
                     </ul>
                     <p className="plan-price">Desde: <strong>S/ 3,000</strong></p>
                 </div>
@@ -317,7 +494,7 @@ const ModalPremium = ({ isOpen, onClose }) => {
     return (
         <BaseModal isOpen={isOpen} onClose={onClose} className="premium-modal">
             <div className="modal-header premium-header">
-                <h2>Plan Premium - Servicio Exclusivo</h2>
+                <h2>Plan Premium</h2>
                 <p>Complete el formulario para acceder a nuestro servicio premium</p>
             </div>
 
@@ -372,14 +549,14 @@ const ModalPremium = ({ isOpen, onClose }) => {
                 </div>
 
                 <div className="benefits-notice premium-summary">
-                    <h4>🎯 Beneficios Exclusivos Premium</h4>
+                    <h4>Beneficios Exclusivos Premium</h4>
                     <ul>
-                        <li>✓ Servicio de lujo totalmente personalizado</li>
-                        <li>✓ Traslados nacionales o internacionales</li>
-                        <li>✓ Asesoría testamentaria y legal avanzada</li>
-                        <li>✓ Selección de urnas o ataúdes de alta gama</li>
-                        <li>✓ Servicio de seguimiento y apoyo en el duelo</li>
-                        <li>✓ Asesor personal asignado 24/7</li>
+                        <li>Servicio de lujo totalmente personalizado</li>
+                        <li>Traslados nacionales o internacionales</li>
+                        <li>Asesoría testamentaria y legal avanzada</li>
+                        <li>Selección de urnas o ataúdes de alta gama</li>
+                        <li>Servicio de seguimiento y apoyo en el duelo</li>
+                        <li>Asesor personal asignado 24/7</li>
                     </ul>
                     <p className="plan-price">Consultar precio personalizado</p>
                 </div>
@@ -397,7 +574,7 @@ const ModalPremium = ({ isOpen, onClose }) => {
     );
 };
 
-// MODAL COTIZACIÓN - Versión Mejorada para Personalización
+// MODAL COTIZACION
 const ModalCotizacion = ({ isOpen, onClose }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -413,7 +590,7 @@ const ModalCotizacion = ({ isOpen, onClose }) => {
             </div>
 
             <form className="asesoria-form" onSubmit={handleSubmit}>
-                {/* 1. SECCIÓN DE INFORMACIÓN DE CONTACTO (MANTENER) */}
+                {/*SECCIÓN DE INFORMACIÓN DE CONTACTO*/}
                 <h3>1. Información de Contacto</h3>
                 <div className="form-row">
                     <div className="input-group">
@@ -430,7 +607,7 @@ const ModalCotizacion = ({ isOpen, onClose }) => {
                     <input type="email" id="email-cotizacion" required placeholder="su@email.com" />
                 </div>
 
-                {/* 2. DETALLES BÁSICOS DEL SERVICIO (ADAPTADO) */}
+                {/*DETALLES BASICOS DEL SERVICIO*/}
                 <h3>2. Preferencias Principales</h3>
                 <div className="form-row">
                     <div className="input-group">
@@ -462,7 +639,7 @@ const ModalCotizacion = ({ isOpen, onClose }) => {
                     </select>
                 </div>
 
-                {/* 3. SECCIÓN DE PERSONALIZACIÓN ESPECÍFICA (NUEVOS CAMPOS) */}
+                {/*SECCIÓN DE PERSONALIZACIÓN*/}
                 <h3>3. Elementos de Personalización</h3>
 
                 <div className="input-group">
@@ -483,7 +660,7 @@ const ModalCotizacion = ({ isOpen, onClose }) => {
                     ></textarea>
                 </div>
 
-                {/* CAMPO CONDICIONAL PARA CREMACIÓN */}
+                {/*CAMPO BLIGATORIO DE CREMACION */}
                 <div className="input-group" id="opcion-cremacion-condicional">
                     <label htmlFor="urna-personalizada">Detalles de Urna / Cenizas (Solo si eligió Cremación)</label>
                     <input
@@ -493,7 +670,7 @@ const ModalCotizacion = ({ isOpen, onClose }) => {
                     />
                 </div>
 
-                {/* CAMPO CONDICIONAL PARA ENTIERRO */}
+                {/* CAMPO OBLIGATORIO DEL ENTIERRO */}
                 <div className="input-group" id="opcion-entierro-condicional">
                     <label htmlFor="ataud-personalizado">Detalles de Ataúd / Lápida (Solo si eligió Entierro)</label>
                     <input
@@ -513,7 +690,7 @@ const ModalCotizacion = ({ isOpen, onClose }) => {
                     </select>
                 </div>
 
-                {/* 4. COMENTARIOS FINALES (MANTENER PERO CON ÉNFASIS) */}
+                {/*COMENTARIOS*/}
                 <h3>4. Comentarios Adicionales</h3>
                 <div className="input-group">
                     <label htmlFor="comentarios">Cualquier otra solicitud o pregunta</label>
@@ -537,7 +714,6 @@ const ModalCotizacion = ({ isOpen, onClose }) => {
     );
 };
 
-// COMPONENTES REUTILIZABLES
 const ValorCard = ({ emoji, title, description, color }) => (
     <div className="valor-card" style={{ backgroundColor: color }}>
         <div className="valor-icon-container">
@@ -594,16 +770,65 @@ const PlanCard = ({ title, priceTag, features, bgColor, borderColor, buttonColor
     </div>
 );
 
-// COMPONENTE PRINCIPAL
+// Diseño de la pagina
 const PlanFunerario = () => {
     const [modalBasicoOpen, setModalBasicoOpen] = useState(false);
     const [modalEstandarOpen, setModalEstandarOpen] = useState(false);
     const [modalPremiumOpen, setModalPremiumOpen] = useState(false);
     const [modalCotizacionOpen, setModalCotizacionOpen] = useState(false);
 
+    const [usuario, setUsuario] = useState(null);
+    const [isEditarPerfilOpen, setIsEditarPerfilOpen] = useState(false);
+
+    useEffect(() => {
+        const usuarioGuardado = localStorage.getItem('usuario');
+        if (usuarioGuardado && usuarioGuardado !== 'undefined') {
+            try {
+                setUsuario(JSON.parse(usuarioGuardado));
+            } catch (error) {
+                localStorage.removeItem('usuario');
+            }
+        }
+    }, []);
+
+    const guardarPerfil = async (datosPerfil) => {
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/editar', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datosPerfil),
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al actualizar perfil');
+            }
+
+            const data = await response.json();
+
+            const nuevoUsuario = { ...usuario, ...data.usuario };
+            localStorage.setItem('usuario', JSON.stringify(nuevoUsuario));
+            setUsuario(nuevoUsuario);
+
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    const cerrarSesion = () => {
+        localStorage.removeItem('usuario');
+        setUsuario(null);
+        window.location.reload();
+    };
+
+    const openEditarPerfil = () => setIsEditarPerfilOpen(true);
+    const closeEditarPerfil = () => setIsEditarPerfilOpen(false);
+
     const planes = [
         {
-            title: "Plan Básico",
+            title: "Plan Basico",
             priceTag: "$ Básico",
             features: [
                 "Servicio de cremación simple o sepelio.",
@@ -614,11 +839,11 @@ const PlanFunerario = () => {
             bgColor: '#F8F1FF',
             borderColor: '#A855F7',
             buttonColor: '#A855F7',
-            imageUrl: BASIC_PLAN_IMAGE,
+            imageUrl: Plan_Basico,
             onButtonClick: () => setModalBasicoOpen(true)
         },
         {
-            title: "Plan Estándar",
+            title: "Plan Estandar",
             priceTag: "$$ Estándar",
             features: [
                 "Servicio integral con velación de 24 horas.",
@@ -630,7 +855,7 @@ const PlanFunerario = () => {
             bgColor: '#FFF5F7',
             borderColor: '#EC4899',
             buttonColor: '#EC4899',
-            imageUrl: STANDARD_PLAN_IMAGE,
+            imageUrl: Plan_Estandar,
             onButtonClick: () => setModalEstandarOpen(true)
         },
         {
@@ -646,7 +871,7 @@ const PlanFunerario = () => {
             bgColor: '#FFFDF0',
             borderColor: '#F59E0B',
             buttonColor: '#F59E0B',
-            imageUrl: PREMIUM_PLAN_IMAGE,
+            imageUrl: Plan_Premium,
             onButtonClick: () => setModalPremiumOpen(true)
         }
     ];
@@ -654,14 +879,19 @@ const PlanFunerario = () => {
     return (
         <div className="plan-funerario-page">
 
-            {/* SECCIÓN NAVBAR */}
-            <Navbar services={servicesData} />
+            {/*NAVBAR */}
+            <Navbar
+                services={servicesData}
+                usuario={usuario}
+                onEditarPerfil={openEditarPerfil}
+                onCerrarSesion={cerrarSesion}
+            />
 
-            {/* SECCIÓN HERO */}
+            {/* SECCION HERO */}
             <div
                 className="hero-section-plan"
                 style={{
-                    backgroundImage: `url(${HEADER_BG}), linear-gradient(to top, #333333, #555555)`
+                    backgroundImage: `url(${Fondo}), linear-gradient(to top, #333333, #555555)`
                 }}
             >
                 <div className="hero-content-plan">
@@ -681,7 +911,6 @@ const PlanFunerario = () => {
                 <div className="hero-overlay-plan"></div>
             </div>
 
-            {/* SECCIÓN ACERCA DE */}
             <div id="about" className="about-section-plan">
                 <div className="intro-container-plan">
                     <div className="intro-text-plan">
@@ -694,10 +923,9 @@ const PlanFunerario = () => {
                     </div>
                     <div className="intro-image-plan">
                         <img
-                            src={FAMILY_IMAGE}
+                            src={Familia}
                             alt="Familia caminando"
                             className="family-image"
-                            onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/400x300/A0C0E0/555555?text=Familia+en+el+Campo"; }}
                         />
                     </div>
                 </div>
@@ -735,7 +963,6 @@ const PlanFunerario = () => {
                 </div>
             </div>
 
-            {/* SECCIÓN CÓMO FUNCIONA */}
             <div className="how-it-works-section-plan">
                 <div className="how-it-works-container-plan">
                     <h2 className="how-it-works-title-plan">Cómo funciona</h2>
@@ -767,7 +994,6 @@ const PlanFunerario = () => {
                 </div>
             </div>
 
-            {/* SECCIÓN PLANES */}
             <div id="plans" className="plans-section-plan">
                 <div className="plans-container-plan">
                     <h2 className="plans-title-plan">Elige tu plan hoy</h2>
@@ -790,7 +1016,6 @@ const PlanFunerario = () => {
                 </div>
             </div>
 
-            {/* SECCIÓN LLAMADA A LA ACCIÓN */}
             <div
                 id="contact-cta"
                 className="cta-section-plan"
@@ -811,10 +1036,8 @@ const PlanFunerario = () => {
                 </div>
             </div>
 
-            {/* SECCIÓN FOOTER */}
             <Footer />
 
-            {/* MODALES */}
             <ModalBasico
                 isOpen={modalBasicoOpen}
                 onClose={() => setModalBasicoOpen(false)}
@@ -830,6 +1053,13 @@ const PlanFunerario = () => {
             <ModalCotizacion
                 isOpen={modalCotizacionOpen}
                 onClose={() => setModalCotizacionOpen(false)}
+            />
+
+            <EditarPerfilModal
+                isOpen={isEditarPerfilOpen}
+                onClose={closeEditarPerfil}
+                usuario={usuario}
+                onGuardar={guardarPerfil}
             />
 
         </div>

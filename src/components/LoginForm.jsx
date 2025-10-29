@@ -1,59 +1,104 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './LoginForm.css';
 
 function LoginForm() {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!formData.email || !formData.password) {
+      setError('Todos los campos son obligatorios');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:5000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      console.log('Usuario logueado:', data.user);
+      localStorage.setItem('usuario', JSON.stringify(data.user)); // <- CORREGIDO
+      navigate('/');
+
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="login-card-container">
       <div className="login-card">
         <h2 className="card-title">Iniciar Sesión</h2>
         <p className="card-subtitle">Bienvenido de nuevo a nuestra plataforma</p>
 
-        <form className="login-form">
-          {/* Campo de Correo Electrónico */}
+        {error && <div className="error-message">{error}</div>}
+
+        <form className="login-form" onSubmit={handleSubmit}>
           <div className="input-group">
             <label htmlFor="email">Correo Electrónico</label>
-            <input 
-              type="email" 
-              id="email" 
-              name="email" 
+            <input
+              type="email"
+              id="email"
+              name="email"
               placeholder="nombre@ejemplo.com"
-              required 
+              value={formData.email}
+              onChange={(e) => setFormData({
+                ...formData,
+                email: e.target.value
+              })}
+              required
             />
           </div>
 
-          {/* Campo de Contraseña */}
           <div className="input-group">
             <label htmlFor="password">Contraseña</label>
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
+            <input
+              type="password"
+              id="password"
+              name="password"
               placeholder="••••••••"
-              required 
+              value={formData.password}
+              onChange={(e) => setFormData({
+                ...formData,
+                password: e.target.value
+              })}
+              required
             />
           </div>
-          
-          {/* Enlace de 'Olvidé mi contraseña' */}
+
           <div className="forgot-password">
             <a href="#">¿Olvidaste tu contraseña?</a>
           </div>
-
-          {/* Botón de Inicio de Sesión */}
-          <button type="submit" className="login-button">
-            INICIAR SESIÓN
+          <button type="submit" className="login-button" disabled={loading}>
+            {loading ? 'CARGANDO...' : 'INICIAR SESIÓN'}
           </button>
         </form>
-
-        {/* Pie de página del formulario (registro) */}
-        <div className="register-link">
-            <p>
-                ¿No tienes una cuenta? { " " }
-                <Link to="/registro">
-                    Regístrate aquí
-                </Link>
-            </p>
-        </div>
       </div>
     </div>
   );

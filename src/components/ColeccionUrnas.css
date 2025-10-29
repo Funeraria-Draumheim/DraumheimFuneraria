@@ -1,1 +1,364 @@
-/* Aqui vana a agregar los estilos de la Coleccion de urnas :) */
+/* ================================================= */
+/* ESTILOS DE NAVBAR Y FOOTER (PARA QUE FUNCIONEN) */
+/* ================================================= */
+
+.navbar {
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 10px 0;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 50;
+}
+
+.navbar-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #9333ea;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex; /* Desktop: Show links */
+    gap: 25px;
+}
+
+.nav-item {
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+    cursor: pointer;
+    position: relative;
+    padding: 10px 0;
+}
+
+.nav-item:hover {
+    color: #7e22ce;
+}
+
+.nav-dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 10px 0;
+    min-width: 180px;
+    z-index: 60;
+}
+
+.dropdown-item {
+    display: block;
+    padding: 8px 15px;
+    color: #333;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.dropdown-item:hover {
+    background-color: #f5f5f5;
+    color: #7e22ce;
+}
+
+.nav-login-button {
+    background-color: #9333ea;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.nav-login-button:hover {
+    background-color: #7e22ce;
+}
+
+/* Footer Styles */
+.footer {
+    background-color: #1a1a1a;
+    color: #f0f0f0;
+    padding: 40px 20px;
+    font-size: 0.9rem;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 30px;
+}
+
+.footer-section {
+    flex: 1;
+    min-width: 200px;
+}
+
+.footer-section h4 {
+    color: #c084fc;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.footer-section p, .footer-link {
+    margin-bottom: 8px;
+    color: #bbb;
+    text-decoration: none;
+    display: block;
+}
+
+.footer-link:hover {
+    color: #fff;
+}
+
+.footer-contact p {
+    display: flex;
+    align-items: center;
+}
+
+.footer-contact .icon {
+    margin-right: 8px;
+    color: #c084fc;
+}
+
+/* ================================================= */
+/* ESTILOS DE COLECCIÓN DE URNAS */
+/* ================================================= */
+
+.coleccion-container {
+  padding: 6rem 2rem 4rem;
+  background-color: #fafafa;
+}
+
+.categoria {
+  margin-bottom: 4rem;
+}
+
+.categoria h2 {
+  text-align: center;
+  color: #7e22ce;
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  font-weight: 700;
+}
+
+/* MODIFICACIÓN: Grid 3 Columnas Fijas y Centrado */
+.grid-urnas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Fija en 3 columnas */
+  gap: 2rem;
+  max-width: 900px; /* Limita el ancho para 3 tarjetas y gaps */
+  margin: 0 auto; /* Centra el contenedor */
+}
+
+.urna-card {
+  width: 260px;
+  height: 340px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.urna-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+}
+
+.urna-card:hover .urna-card-inner {
+  transform: rotateY(180deg);
+}
+
+.urna-card-front, .urna-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.urna-card-front {
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.urna-card-front img {
+  width: 100%;
+  height: 80%;
+  object-fit: cover;
+}
+
+.urna-card-front p {
+  padding: 0.5rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.urna-card-back {
+  background: linear-gradient(180deg, #ede9fe, #f9fafb);
+  transform: rotateY(180deg);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.modal-content {
+  background: white;
+  display: flex;
+  flex-wrap: wrap;
+  width: 80%;
+  max-width: 800px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.modal-left {
+  flex: 1 1 45%;
+}
+
+.modal-left img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modal-right {
+  flex: 1 1 55%;
+  padding: 2rem;
+  font-size: 1rem;
+  color: #333;
+}
+
+.asesoria-btn {
+  background-color: #9333ea;
+  color: white;
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: 0.3s;
+}
+
+.asesoria-btn:hover {
+  background-color: #7e22ce;
+}
+
+/* ================================================= */
+/* MEDIA QUERIES PARA RESPONSIVIDAD */
+/* ================================================= */
+
+/* Tabletas y pantallas medianas (hasta 960px) */
+@media (max-width: 960px) {
+    /* GRID: Pasa de 3 a 2 columnas */
+    .grid-urnas {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 600px; 
+    }
+    
+    .urna-card {
+        margin: 0 auto;
+    }
+
+    /* NAVBAR MOBILE ADJUSTMENTS */
+    .nav-links {
+        display: none; /* Oculta enlaces de escritorio */
+    }
+
+    .navbar-content {
+        justify-content: space-around; /* Reposiciona logo y botón de login */
+    }
+
+    /* FOOTER MOBILE ADJUSTMENTS */
+    .footer-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .footer-section {
+        min-width: 100%;
+        margin-bottom: 20px;
+    }
+    .footer-section h4 {
+        text-align: center;
+    }
+
+    /* MODAL */
+    .modal-content {
+        flex-direction: column;
+        width: 90%;
+    }
+    .modal-right {
+        padding: 1.5rem;
+        font-size: 0.95rem;
+    }
+    .modal-left {
+        flex: 1 1 100%;
+        max-height: 250px; 
+    }
+}
+
+/* Móviles (hasta 600px) */
+@media (max-width: 600px) {
+    /* GRID: Pasa a 1 columna */
+    .grid-urnas {
+        grid-template-columns: 1fr;
+        max-width: 300px; 
+    }
+    .coleccion-container {
+      padding: 4rem 1rem 2rem;
+    }
+    .categoria h2 {
+      font-size: 1.5rem;
+    }
+    
+    /* NAVBAR */
+    .navbar-content {
+        padding: 0 10px;
+    }
+    .nav-login-button {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+}
