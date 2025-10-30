@@ -594,20 +594,30 @@ const FuneralTradicional = () => {
     };
 
     const handlePlanSubmit = async (formData) => {
-        try {
-            // Aquí iría la lógica para enviar los datos al backend
-            console.log('Datos del plan:', {
-                plan: selectedPlan,
-                ...formData
-            });
-            
-            // Simulación de envío exitoso
-            alert(`Solicitud para plan ${selectedPlan} enviada correctamente. Nos contactaremos pronto.`);
-            closePlanModal();
-        } catch (error) {
-            alert('Error al enviar la solicitud. Por favor intente nuevamente.');
-        }
-    };
+    try {
+        const datos = {
+            ...formData,
+            tipo_plan: selectedPlan // "básico", "estándar" o "premium"
+        };
+
+        const response = await fetch("http://localhost:5000/api/planes-funerarios", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(datos)
+        });
+
+        if (!response.ok) throw new Error("Error al enviar los datos");
+
+        const data = await response.json();
+        console.log("Plan guardado en BD:", data);
+        alert(`Solicitud para plan ${selectedPlan} enviada correctamente. Nos contactaremos pronto.`);
+        closePlanModal();
+    } catch (error) {
+        console.error("Error al enviar plan:", error);
+        alert("Error al enviar la solicitud. Por favor intente nuevamente.");
+    }
+};
+
 
     return (
         <div className="funeral-tradicional-page">

@@ -10,8 +10,8 @@ app.use(express.json());
 const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
-  database: 'funeraria_db',
-  password: '12345678',
+  database: 'funeraria',
+  password: 'Picholin_9',
   port: 5432,
 });
 
@@ -176,6 +176,145 @@ app.put('/api/auth/editar', async (req, res) => {
 //Cerrar Sesion
 app.post('/api/auth/logout', (req, res) => {
   res.json({ message: 'Sesion cerrada correctamente'});
+});
+
+// ruta de asesoría
+const asesoriaRoutes = require('./routes/asesoria.routes');
+app.use('/api', asesoriaRoutes);
+
+app.post("/api/asesoria-general", async (req, res) => {
+    const {
+        nombre,
+        telefono,
+        email,
+        ciudad,
+        tipo_servicio,
+        tipo_ceremonia,
+        ubicacion_ceremonia,
+        tipo_ataud,
+        tipo_cremacion,
+        urna,
+        transporte,
+        flores,
+        adicionales,
+        fecha_servicio,
+        cantidad_asistentes,
+        mensaje,
+        precio_calculado,
+        desglose_precio
+    } = req.body;
+
+    try {
+        const result = await pool.query(
+    `INSERT INTO solicitudes_asesoria_general (
+        nombre, telefono, email, ciudad, tipo_servicio, tipo_ceremonia,
+        ubicacion_ceremonia, tipo_ataud, tipo_cremacion, urna, transporte, flores,
+        fecha_servicio, cantidad_asistentes, adicionales, mensaje,
+        precio_calculado, desglose_precio
+    )
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+    RETURNING *`,
+    [
+        nombre, telefono, email, ciudad, tipo_servicio, tipo_ceremonia,
+        ubicacion_ceremonia, tipo_ataud, tipo_cremacion, urna, transporte, flores,
+        fecha_servicio, cantidad_asistentes, JSON.stringify(adicionales), mensaje,
+        precio_calculado, JSON.stringify(desglose_precio)
+    ]
+);
+
+
+        res.status(201).json({
+            mensaje: "Solicitud de asesoría guardada exitosamente",
+            data: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error("Error al guardar asesoría:", error);
+        res.status(500).json({ error: "Error al guardar los datos en la base" });
+    }
+});
+
+//
+//ruta de plan funerario
+//
+app.post("/api/planes-funerarios", async (req, res) => {
+    const {
+        nombre_completo,
+        telefono,
+        email,
+        tipo_plan,
+        capilla,
+        fecha_servicio,
+        cantidad_asistentes,
+        mensaje_adicional
+    } = req.body;
+
+    try {
+        const result = await pool.query(
+            `INSERT INTO solicitudes_planes_funerarios (
+                nombre_completo, telefono, email, tipo_plan, capilla, 
+                fecha_servicio, cantidad_asistentes, mensaje_adicional
+            )
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+            RETURNING *`,
+            [
+                nombre_completo, telefono, email, tipo_plan, capilla,
+                fecha_servicio, cantidad_asistentes, mensaje_adicional
+            ]
+        );
+
+        res.status(201).json({
+            mensaje: "Solicitud de plan funerario guardada correctamente",
+            data: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error("Error al guardar plan funerario:", error);
+        res.status(500).json({ error: "Error al guardar en la base de datos" });
+    }
+});
+
+//
+//ruta de cremacion
+//
+
+app.post("/api/planes-cremacion", async (req, res) => {
+    const {
+        nombre_completo,
+        telefono,
+        email,
+        ubicacion,
+        tipo_plan,
+        tipo_cremacion,
+        lugar_cremacion,
+        tipo_urna,
+        fecha_servicio,
+        mensaje_adicional
+    } = req.body;
+
+    try {
+        const result = await pool.query(
+            `INSERT INTO solicitudes_planes_cremacion (
+                nombre_completo, telefono, email, ubicacion, tipo_plan,
+                tipo_cremacion, lugar_cremacion, tipo_urna, fecha_servicio, mensaje_adicional
+            )
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+            RETURNING *`,
+            [
+                nombre_completo, telefono, email, ubicacion, tipo_plan,
+                tipo_cremacion, lugar_cremacion, tipo_urna, fecha_servicio, mensaje_adicional
+            ]
+        );
+
+        res.status(201).json({
+            mensaje: "Solicitud de plan de cremación guardada correctamente",
+            data: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error("Error al guardar plan de cremación:", error);
+        res.status(500).json({ error: "Error al guardar en la base de datos" });
+    }
 });
 
 app.listen(5000, () => {

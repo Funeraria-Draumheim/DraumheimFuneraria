@@ -383,38 +383,58 @@ const AsesoriaModal = ({ isOpen, onClose }) => {
         }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const datosCompletos = {
-            ...formData,
-            precio_calculado: precioCalculado,
-            desglose_precio: desglosePrecio
-        };
-        
-        console.log('Datos del formulario:', datosCompletos);
-        alert(`¡Gracias! Hemos recibido tu solicitud de asesoría.\n\nPrecio estimado: S/ ${precioCalculado.toLocaleString('es-PE')}\n\nNos contactaremos contigo en breve para confirmar detalles.`);
-        onClose();
-        
-        // Resetear formulario
-        setFormData({
-            nombre: '',
-            telefono: '',
-            email: '',
-            ciudad: '',
-            tipo_servicio: '',
-            tipo_ceremonia: '',
-            ubicacion_ceremonia: '',
-            tipo_ataud: '',
-            tipo_cremacion: '',
-            urna: '',
-            transporte: '',
-            flores: '',
-            adicionales: [],
-            fecha_servicio: '',
-            cantidad_asistentes: '',
-            mensaje: ''
-        });
+    const handleSubmit = async (e) => {
+    e.preventDefault();
+    const datosCompletos = {
+        ...formData,
+        precio_calculado: precioCalculado,
+        desglose_precio: desglosePrecio
     };
+
+    try {
+        const response = await fetch("http://localhost:5000/api/asesoria-general", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(datosCompletos)
+        });
+
+        if (!response.ok) {
+            throw new Error("Error al enviar los datos");
+        }
+
+        const data = await response.json();
+        console.log("Datos guardados en la base:", data);
+
+        alert(`✅ ¡Gracias! Hemos recibido tu solicitud.\nPrecio estimado: S/ ${precioCalculado.toLocaleString('es-PE')}`);
+        onClose();
+    } catch (error) {
+        console.error("Error:", error);
+        alert("❌ Hubo un error al enviar tu solicitud.");
+    }
+
+    // Resetear formulario
+    setFormData({
+        nombre: '',
+        telefono: '',
+        email: '',
+        ciudad: '',
+        tipo_servicio: '',
+        tipo_ceremonia: '',
+        ubicacion_ceremonia: '',
+        tipo_ataud: '',
+        tipo_cremacion: '',
+        urna: '',
+        transporte: '',
+        flores: '',
+        adicionales: [],
+        fecha_servicio: '',
+        cantidad_asistentes: '',
+        mensaje: ''
+    });
+};
+
 
     if (!isOpen) return null;
 

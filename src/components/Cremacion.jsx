@@ -634,16 +634,51 @@ const CremacionPlanModal = ({ isOpen, onClose, planType, onSubmit }) => {
         };
     }, [isOpen, onClose]);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const finalData = {
-            ...formData,
-            tipo_cremacion: selectedCremationType,
+    const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+        const datos = {
+            nombre_completo: formData.nombre_completo,
+            telefono: formData.telefono,
+            email: formData.email,
+            ubicacion: formData.ubicacion,
+            tipo_plan: planType, // "básico", "estándar", "premium"
+            tipo_cremacion: selectedCremationType, // fuego o acuamación
+            lugar_cremacion: selectedLocation,
             tipo_urna: selectedUrna,
-            lugar_cremacion: selectedLocation
+            fecha_servicio: formData.fecha_servicio,
+            mensaje_adicional: formData.mensaje_adicional
         };
-        onSubmit(finalData);
-    };
+
+        const response = await fetch("http://localhost:5000/api/planes-cremacion", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(datos)
+        });
+
+        if (!response.ok) throw new Error("Error al enviar los datos");
+
+        const data = await response.json();
+        console.log("Plan de cremación guardado:", data);
+
+        alert(`¡Gracias! Hemos recibido tu solicitud de cremación (${planType}). Nos contactaremos contigo pronto.`);
+        onClose();
+
+        setFormData({
+            nombre_completo: '',
+            telefono: '',
+            email: '',
+            ubicacion: '',
+            fecha_servicio: '',
+            mensaje_adicional: ''
+        });
+    } catch (error) {
+        console.error("Error al enviar cremación:", error);
+        alert("Error al enviar la solicitud. Por favor intenta nuevamente.");
+    }
+};
+
 
     const handleChange = (e) => {
         setFormData({
