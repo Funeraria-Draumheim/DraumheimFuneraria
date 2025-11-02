@@ -82,7 +82,7 @@ function App() {
       <Route path="/testimonios" element={<HomePage />} />
       <Route path="/contacto" element={<HomePage />} />
 
-      <Route path="/adminpanel" element={<AdminPanel />} />
+      <Route path="/admin-panel" element={<AdminPanel />} />
 
       {/* RUTA 404 - Página no encontrada */}
       <Route path="*" element={<HomePage />} />

@@ -41,8 +41,14 @@ function LoginForm() {
       }
 
       console.log('Usuario logueado:', data.user);
-      localStorage.setItem('usuario', JSON.stringify(data.user)); // <- CORREGIDO
-      navigate('/');
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      //Dependiendo del rol
+      if (data.user.rol === 'admin' || data.user.rol === 'empleado') {
+        navigate('/admin-panel');
+      } else {
+        navigate('/home');
+      }
 
     } catch (err) {
       setError(err.message);
