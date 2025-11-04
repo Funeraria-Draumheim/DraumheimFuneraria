@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './AdminPanel.css';
 
 const AdminPanel = () => {
@@ -12,7 +13,7 @@ const AdminPanel = () => {
     const [productoEditando, setProductoEditando] = useState(null);
     const [formProducto, setFormProducto] = useState({
         nombre: '',
-        categoria: '',
+        categoria_id: '',
         material: '',
         precio: '',
         stock: '',
@@ -27,39 +28,39 @@ const AdminPanel = () => {
 
     // TIPOS DE SOLICITUD CON ICONOS Y COLORES MEJORADOS
     const tiposSolicitud = {
-        asesoria_24_7: { 
-            nombre: 'Asesoría 24/7', 
-            color: '#FF6B6B', 
+        asesoria_24_7: {
+            nombre: 'Asesoría 24/7',
+            color: '#FF6B6B',
             icono: '🚨',
             bgColor: '#FFF5F5'
         },
-        asesoria_privada: { 
-            nombre: 'Asesoría Privada', 
-            color: '#4ECDC4', 
+        asesoria_privada: {
+            nombre: 'Asesoría Privada',
+            color: '#4ECDC4',
             icono: '👥',
             bgColor: '#F0FFFC'
         },
-        plan_basico: { 
-            nombre: 'Plan Básico', 
-            color: '#45B7D1', 
+        plan_basico: {
+            nombre: 'Plan Básico',
+            color: '#45B7D1',
             icono: '📦',
             bgColor: '#F0F8FF'
         },
-        plan_estandar: { 
-            nombre: 'Plan Estándar', 
-            color: '#96CEB4', 
+        plan_estandar: {
+            nombre: 'Plan Estándar',
+            color: '#96CEB4',
             icono: '⭐',
             bgColor: '#F8FFF0'
         },
-        plan_premium: { 
-            nombre: 'Plan Premium', 
-            color: '#FFD93D', 
+        plan_premium: {
+            nombre: 'Plan Premium',
+            color: '#FFD93D',
             icono: '👑',
             bgColor: '#FFFDF0'
         },
-        cotizacion_personalizada: { 
-            nombre: 'Cotización Personalizada', 
-            color: '#DDA0DD', 
+        cotizacion_personalizada: {
+            nombre: 'Cotización Personalizada',
+            color: '#DDA0DD',
             icono: '💰',
             bgColor: '#FDF0FF'
         }
@@ -169,11 +170,47 @@ const AdminPanel = () => {
     ];
 
     useEffect(() => {
-        setTimeout(() => {
-            setSolicitudes(solicitudesEjemplo);
-            setProductos(productosEjemplo);
-            setCargando(false);
-        }, 1500);
+        const cargarDatos = async () => {
+            try {
+                // Cargar solicitudes falsas (a futuro podrías reemplazarlas también)
+                setSolicitudes(solicitudesEjemplo);
+
+                // Cargar productos reales desde el backend
+                const response = await axios.get('http://localhost:5000/api/urnas');
+                const data = Array.isArray(response.data) ? response.data : [];
+
+                // Si tus productos no tienen todas las propiedades (ej. categoria_id o imagen_url),
+                // agregamos valores por defecto para evitar errores visuales
+                const productosNormalizados = data.map(p => ({
+                    id: p.id || p.id_urna || 0,
+                    categoria_id: p.categoria_id || 1, // valor por defecto
+                    nombre: p.nombre || 'Sin nombre',
+                    descripcion: p.descripcion || 'Sin descripción',
+                    descripcion_larga: p.descripcion_larga || '',
+                    material: p.material || '',
+                    precio: p.precio || 0,
+                    stock: p.stock || 0,
+                    imagen_url: p.imagen_url
+                        ? `http://localhost:5000${p.imagen_url}` // ✅ concatenamos directo, porque ya incluye "/uploads/..."
+                        : 'https://placehold.co/400x300?text=Sin+Imagen',
+
+                    dimensiones: p.dimensiones || 'N/A',
+                    peso_kg: p.peso_kg || 0,
+                    capacidad_ml: p.capacidad_ml || 0,
+                    destacado: p.destacado || false,
+                    activo: p.activo ?? true
+                }));
+
+                setProductos(productosNormalizados);
+            } catch (error) {
+                console.error('Error al cargar productos:', error);
+                alert('No se pudieron cargar los productos desde el servidor');
+            } finally {
+                setCargando(false);
+            }
+        };
+
+        cargarDatos();
     }, []);
 
     // FUNCIONES PARA SOLICITUDES
@@ -184,8 +221,8 @@ const AdminPanel = () => {
     });
 
     const cambiarEstadoSolicitud = (idSolicitud, nuevoEstado) => {
-        setSolicitudes(prev => prev.map(s => 
-            s.id_solicitud === idSolicitud 
+        setSolicitudes(prev => prev.map(s =>
+            s.id_solicitud === idSolicitud
                 ? { ...s, estado: nuevoEstado }
                 : s
         ));
@@ -229,27 +266,80 @@ const AdminPanel = () => {
         setModalProductoAbierto(true);
     };
 
-    const guardarProducto = (e) => {
+
+
+    const guardarProducto = async (e) => {
         e.preventDefault();
-        if (productoEditando) {
-            // Editar producto existente
-            setProductos(prev => prev.map(p => 
-                p.id === productoEditando.id 
-                    ? { ...p, ...formProducto, categoria_id: parseInt(formProducto.categoria) }
-                    : p
-            ));
-        } else {
-            // Crear nuevo producto
-            const nuevoProducto = {
-                id: Math.max(...productos.map(p => p.id)) + 1,
-                ...formProducto,
-                categoria_id: parseInt(formProducto.categoria),
-                activo: true
-            };
-            setProductos(prev => [...prev, nuevoProducto]);
+
+        try {
+            const formData = new FormData();
+
+            // ✅ Asegurar que categoria sea un número entero válido
+        const categoriaId = parseInt(formProducto.categoria, 10);
+        if (isNaN(categoriaId)) {
+            alert("Debes seleccionar una categoría válida");
+            return;
         }
-        setModalProductoAbierto(false);
+
+            formData.append('nombre', formProducto.nombre);
+            formData.append('categoria_id', parseInt(formProducto.categoria, 10));
+            formData.append('material', formProducto.material);
+            formData.append('precio', formProducto.precio);
+            formData.append('stock', formProducto.stock);
+            formData.append('descripcion', formProducto.descripcion);
+            formData.append('descripcion_larga', formProducto.descripcion_larga);
+            formData.append('dimensiones', formProducto.dimensiones);
+            formData.append('peso_kg', formProducto.peso_kg);
+            formData.append('capacidad_ml', formProducto.capacidad_ml);
+            formData.append('destacado', formProducto.destacado);
+
+            // Agregar imagen solo si hay archivo seleccionado
+            const fileInput = document.querySelector('input[type="file"]');
+            if (fileInput && fileInput.files[0]) {
+                formData.append('imagen', fileInput.files[0]);
+            }
+
+            let response;
+
+            if (productoEditando) {
+                // Si estás editando, usa PUT
+                response = await axios.put(`http://localhost:5000/api/urnas/${productoEditando.id}`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+            } else {
+                // Si es nuevo producto, usa POST
+                response = await axios.post('http://localhost:5000/api/urnas', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+            }
+
+            // Actualiza la lista local con la respuesta del backend
+            if (response.data) {
+                const nuevoProducto = {
+                    ...response.data,
+                    categoria_id: response.data.categoria_id || categoriaId,
+                };
+                if (productoEditando) {
+                    setProductos(prev =>
+                        prev.map(p => p.id === productoEditando.id ? nuevoProducto : p)
+                    );
+                } else {
+                    setProductos(prev => [...prev, nuevoProducto]);
+                }
+            }
+
+
+            setModalProductoAbierto(false);
+            alert('✅ Producto guardado correctamente');
+            //await cargarDatos(); // recarga lista desde backend
+
+
+        } catch (error) {
+            console.error('Error al guardar el producto:', error);
+            alert('❌ Error al guardar el producto');
+        }
     };
+
 
     const eliminarProducto = (id) => {
         if (window.confirm('¿Estás seguro de que quieres eliminar este producto?')) {
@@ -258,7 +348,7 @@ const AdminPanel = () => {
     };
 
     const toggleDestacado = (id) => {
-        setProductos(prev => prev.map(p => 
+        setProductos(prev => prev.map(p =>
             p.id === id ? { ...p, destacado: !p.destacado } : p
         ));
     };
@@ -327,10 +417,10 @@ const AdminPanel = () => {
                     <div className="detalles-contenido">
                         {Object.entries(datos).map(([key, value]) => (
                             key !== 'nombre' && key !== 'telefono' && key !== 'email' && (
-                                <DetailItem 
-                                    key={key} 
-                                    label={key.replace(/_/g, ' ')} 
-                                    value={value} 
+                                <DetailItem
+                                    key={key}
+                                    label={key.replace(/_/g, ' ')}
+                                    value={value}
                                 />
                             )
                         ))}
@@ -341,24 +431,24 @@ const AdminPanel = () => {
                     <div className="acciones-grupo">
                         {solicitud.estado === 'nueva' && (
                             <>
-                                <ActionButton 
-                                    icon="🔄" 
-                                    text="En Proceso" 
+                                <ActionButton
+                                    icon="🔄"
+                                    text="En Proceso"
                                     type="proceso"
                                     onClick={() => cambiarEstadoSolicitud(solicitud.id_solicitud, 'en_proceso')}
                                 />
-                                <ActionButton 
-                                    icon="✅" 
-                                    text="Atendida" 
+                                <ActionButton
+                                    icon="✅"
+                                    text="Atendida"
                                     type="atendida"
                                     onClick={() => cambiarEstadoSolicitud(solicitud.id_solicitud, 'atendida')}
                                 />
                             </>
                         )}
                         {solicitud.estado === 'en_proceso' && (
-                            <ActionButton 
-                                icon="✅" 
-                                text="Marcar como Atendida" 
+                            <ActionButton
+                                icon="✅"
+                                text="Marcar como Atendida"
                                 type="atendida"
                                 onClick={() => cambiarEstadoSolicitud(solicitud.id_solicitud, 'atendida')}
                             />
@@ -366,9 +456,9 @@ const AdminPanel = () => {
                     </div>
                     <div className="acciones-secundarias">
                         {/* <ActionButton icon="📞" text="Contactar" type="contactar" /> */}
-                        <ActionButton 
-                            icon="❌" 
-                            text="Cancelar" 
+                        <ActionButton
+                            icon="❌"
+                            text="Cancelar"
                             type="eliminar"
                             onClick={() => cambiarEstadoSolicitud(solicitud.id_solicitud, 'cancelada')}
                         />
@@ -382,14 +472,28 @@ const AdminPanel = () => {
     const TarjetaProducto = ({ producto }) => {
         const categoriaInfo = categoriasProductos[producto.categoria_id];
 
+        if (!categoriaInfo) {
+            console.warn('Categoría no encontrada para producto:', producto);
+            return null;
+        }
+
         return (
             <div className="tarjeta-producto">
                 <div className="producto-imagen">
-                    <img src={producto.imagen_url} alt={producto.nombre} />
+                    <img
+                        src={
+                            producto.imagen_url?.startsWith('http')
+                                ? producto.imagen_url
+                                : `http://localhost:5000${producto.imagen_url}`
+                        }
+                        alt={producto.nombre}
+                        className="producto-img"
+                    />
+
                     {producto.destacado && <div className="destacado-badge">Destacado</div>}
                     {producto.stock < 5 && <div className="stock-bajo-badge">Stock Bajo</div>}
                 </div>
-                
+
                 <div className="producto-info">
                     <div className="producto-header">
                         <div className="categoria-badge" style={{ backgroundColor: categoriaInfo.color }}>
@@ -398,10 +502,10 @@ const AdminPanel = () => {
                         </div>
                         <div className="producto-precio">S/ {producto.precio}</div>
                     </div>
-                    
+
                     <h4 className="producto-nombre">{producto.nombre}</h4>
                     <p className="producto-descripcion">{producto.descripcion}</p>
-                    
+
                     <div className="producto-detalles">
                         <div className="detalle-item">
                             <span className="detalle-label">Material:</span>
@@ -421,19 +525,19 @@ const AdminPanel = () => {
                 </div>
 
                 <div className="producto-acciones">
-                    <button 
+                    <button
                         className="btn btn-editar"
                         onClick={() => abrirModalProducto(producto)}
                     >
                         Editar
                     </button>
-                    <button 
+                    <button
                         className={`btn ${producto.destacado ? 'btn-destacado' : 'btn-normal'}`}
                         onClick={() => toggleDestacado(producto.id)}
                     >
                         {producto.destacado ? 'Quitar' : 'Destacar'}
                     </button>
-                    <button 
+                    <button
                         className="btn btn-eliminar"
                         onClick={() => eliminarProducto(producto.id)}
                     >
@@ -455,7 +559,7 @@ const AdminPanel = () => {
     );
 
     const ActionButton = ({ icon, text, type, onClick }) => (
-        <button 
+        <button
             className={`btn btn-${type}`}
             onClick={onClick}
         >
@@ -484,23 +588,23 @@ const AdminPanel = () => {
                         <h1>Panel de Administración</h1>
                         <p>Gestiona solicitudes y productos de tu funeraria</p>
                     </div>
-                    
+
                     {/* NAVEGACIÓN ENTRE VISTAS */}
                     <div className="navegacion-vistas">
-                        <button 
+                        <button
                             className={`vista-btn ${vistaActiva === 'solicitudes' ? 'activa' : ''}`}
                             onClick={() => setVistaActiva('solicitudes')}
                         >
                             Solicitudes
                         </button>
-                        <button 
+                        <button
                             className={`vista-btn ${vistaActiva === 'productos' ? 'activa' : ''}`}
                             onClick={() => setVistaActiva('productos')}
                         >
                             Gestión de Urnas
                         </button>
                     </div>
-                    
+
                     {/* ESTADÍSTICAS */}
                     <div className="estadisticas-grid">
                         <div className="stat-card total">
@@ -538,8 +642,8 @@ const AdminPanel = () => {
                         <div className="filtros-grid">
                             <div className="filtro-grupo">
                                 <label>🔍 Filtrar por tipo:</label>
-                                <select 
-                                    value={filtroTipo} 
+                                <select
+                                    value={filtroTipo}
                                     onChange={(e) => setFiltroTipo(e.target.value)}
                                     className="filtro-select"
                                 >
@@ -554,8 +658,8 @@ const AdminPanel = () => {
 
                             <div className="filtro-grupo">
                                 <label>📊 Filtrar por estado:</label>
-                                <select 
-                                    value={filtroEstado} 
+                                <select
+                                    value={filtroEstado}
                                     onChange={(e) => setFiltroEstado(e.target.value)}
                                     className="filtro-select"
                                 >
@@ -587,9 +691,9 @@ const AdminPanel = () => {
                             </div>
                         ) : (
                             solicitudesFiltradas.map(solicitud => (
-                                <TarjetaSolicitud 
-                                    key={solicitud.id_solicitud} 
-                                    solicitud={solicitud} 
+                                <TarjetaSolicitud
+                                    key={solicitud.id_solicitud}
+                                    solicitud={solicitud}
                                 />
                             ))
                         )}
@@ -602,7 +706,7 @@ const AdminPanel = () => {
                 <>
                     <div className="productos-header">
                         <div className="header-acciones">
-                            <button 
+                            <button
                                 className="btn btn-agregar"
                                 onClick={() => abrirModalProducto()}
                             >
@@ -617,7 +721,7 @@ const AdminPanel = () => {
                                 <div className="sin-resultados-icon">🏺</div>
                                 <h3>No hay productos</h3>
                                 <p>Comienza agregando tu primer producto</p>
-                                <button 
+                                <button
                                     className="btn btn-agregar"
                                     onClick={() => abrirModalProducto()}
                                 >
@@ -626,9 +730,9 @@ const AdminPanel = () => {
                             </div>
                         ) : (
                             productos.map(producto => (
-                                <TarjetaProducto 
-                                    key={producto.id} 
-                                    producto={producto} 
+                                <TarjetaProducto
+                                    key={producto.id}
+                                    producto={producto}
                                 />
                             ))
                         )}
@@ -642,7 +746,7 @@ const AdminPanel = () => {
                     <div className="modal-content producto-modal" onClick={e => e.stopPropagation()}>
                         <div className="modal-header">
                             <h2>{productoEditando ? 'Editar Producto' : 'Agregar Producto'}</h2>
-                            <button 
+                            <button
                                 className="modal-close"
                                 onClick={() => setModalProductoAbierto(false)}
                             >
@@ -657,7 +761,7 @@ const AdminPanel = () => {
                                     <input
                                         type="text"
                                         value={formProducto.nombre}
-                                        onChange={(e) => setFormProducto(prev => ({...prev, nombre: e.target.value}))}
+                                        onChange={(e) => setFormProducto(prev => ({ ...prev, nombre: e.target.value }))}
                                         required
                                     />
                                 </div>
@@ -666,7 +770,7 @@ const AdminPanel = () => {
                                     <label>Categoría *</label>
                                     <select
                                         value={formProducto.categoria}
-                                        onChange={(e) => setFormProducto(prev => ({...prev, categoria: e.target.value}))}
+                                        onChange={(e) => setFormProducto(prev => ({ ...prev, categoria: e.target.value }))}
                                         required
                                     >
                                         <option value="">Seleccionar categoría</option>
@@ -683,7 +787,7 @@ const AdminPanel = () => {
                                     <input
                                         type="text"
                                         value={formProducto.material}
-                                        onChange={(e) => setFormProducto(prev => ({...prev, material: e.target.value}))}
+                                        onChange={(e) => setFormProducto(prev => ({ ...prev, material: e.target.value }))}
                                         required
                                     />
                                 </div>
@@ -694,7 +798,7 @@ const AdminPanel = () => {
                                         type="number"
                                         step="0.01"
                                         value={formProducto.precio}
-                                        onChange={(e) => setFormProducto(prev => ({...prev, precio: e.target.value}))}
+                                        onChange={(e) => setFormProducto(prev => ({ ...prev, precio: e.target.value }))}
                                         required
                                     />
                                 </div>
@@ -704,7 +808,7 @@ const AdminPanel = () => {
                                     <input
                                         type="number"
                                         value={formProducto.stock}
-                                        onChange={(e) => setFormProducto(prev => ({...prev, stock: e.target.value}))}
+                                        onChange={(e) => setFormProducto(prev => ({ ...prev, stock: e.target.value }))}
                                         required
                                     />
                                 </div>
@@ -714,56 +818,37 @@ const AdminPanel = () => {
                                     <input
                                         type="text"
                                         value={formProducto.descripcion}
-                                        onChange={(e) => setFormProducto(prev => ({...prev, descripcion: e.target.value}))}
+                                        onChange={(e) => setFormProducto(prev => ({ ...prev, descripcion: e.target.value }))}
                                         required
                                     />
                                 </div>
 
                                 <div className="form-group full-width">
-                                    <label>Descripción Larga</label>
-                                    <textarea
-                                        value={formProducto.descripcion_larga}
-                                        onChange={(e) => setFormProducto(prev => ({...prev, descripcion_larga: e.target.value}))}
-                                        rows="3"
-                                    />
-                                </div>
+                                    <label>Imagen del Producto</label>
 
-                                <div className="form-group full-width">
-                                    <label>URL de Imagen</label>
                                     <input
-                                        type="url"
-                                        value={formProducto.imagen_url}
-                                        onChange={(e) => setFormProducto(prev => ({...prev, imagen_url: e.target.value}))}
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (file) {
+                                                const imageURL = URL.createObjectURL(file);
+                                                setFormProducto(prev => ({ ...prev, imagen_url: imageURL }));
+                                            }
+                                        }}
                                     />
-                                </div>
 
-                                <div className="form-group">
-                                    <label>Dimensiones</label>
-                                    <input
-                                        type="text"
-                                        value={formProducto.dimensiones}
-                                        onChange={(e) => setFormProducto(prev => ({...prev, dimensiones: e.target.value}))}
-                                        placeholder="25x25x35 cm"
-                                    />
-                                </div>
+                                    {/* Vista previa (opcional) */}
+                                    {formProducto.imagen_url && (
+                                        <div className="preview-container">
+                                            <img
+                                                src={formProducto.imagen_url}
+                                                alt="Vista previa"
+                                                className="preview-imagen"
+                                            />
+                                        </div>
+                                    )}
 
-                                <div className="form-group">
-                                    <label>Peso (kg)</label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        value={formProducto.peso_kg}
-                                        onChange={(e) => setFormProducto(prev => ({...prev, peso_kg: e.target.value}))}
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label>Capacidad (ml)</label>
-                                    <input
-                                        type="number"
-                                        value={formProducto.capacidad_ml}
-                                        onChange={(e) => setFormProducto(prev => ({...prev, capacidad_ml: e.target.value}))}
-                                    />
                                 </div>
 
                                 <div className="form-group checkbox-group">
@@ -771,7 +856,7 @@ const AdminPanel = () => {
                                         <input
                                             type="checkbox"
                                             checked={formProducto.destacado}
-                                            onChange={(e) => setFormProducto(prev => ({...prev, destacado: e.target.checked}))}
+                                            onChange={(e) => setFormProducto(prev => ({ ...prev, destacado: e.target.checked }))}
                                         />
                                         Producto Destacado
                                     </label>
@@ -779,15 +864,15 @@ const AdminPanel = () => {
                             </div>
 
                             <div className="form-acciones">
-                                <button 
-                                    type="button" 
+                                <button
+                                    type="button"
                                     className="btn btn-cancelar"
                                     onClick={() => setModalProductoAbierto(false)}
                                 >
                                     Cancelar
                                 </button>
-                                <button 
-                                    type="submit" 
+                                <button
+                                    type="submit"
                                     className="btn btn-guardar"
                                 >
                                     {productoEditando ? '💾 Actualizar' : '➕ Agregar'} Producto
