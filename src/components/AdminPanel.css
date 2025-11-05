@@ -5,6 +5,86 @@
     padding: 0;
 }
 
+/*PAMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM*/
+/* Tabla general */
+
+.tabla-solicitudes {
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  background-color: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.tabla-solicitudes th {
+  background-color: #1a73e8;
+  color: #fff;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.tabla-solicitudes td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.tabla-solicitudes tr:hover {
+  background-color: #f5f7fa;
+}
+
+/* Acciones */
+.acciones-col {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-accion {
+  border: none;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.btn-accion.editar {
+  background-color: #ffd95c;
+}
+
+.btn-accion.eliminar {
+  background-color: #f87171;
+}
+
+.btn-accion:hover {
+  opacity: 0.85;
+}
+
+/* Estado visual */
+.estado-badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.estado-activo {
+  background-color: #16a34a;
+}
+
+.estado-inactivo {
+  background-color: #9ca3af;
+}
+
+/* Mensaje vacío */
+.no-data-msg {
+  text-align: center;
+  margin-top: 1rem;
+  color: #6b7280;
+}
+/*PAMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM*/
+
+
 /* HEADER MEJORADO */
 .panel-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

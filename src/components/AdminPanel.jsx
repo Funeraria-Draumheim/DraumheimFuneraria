@@ -4,6 +4,24 @@ import './AdminPanel.css';
 const AdminPanel = () => {
     const [vistaActiva, setVistaActiva] = useState('solicitudes'); // 'solicitudes' o 'productos'
     const [solicitudes, setSolicitudes] = useState([]);
+    //PAMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+    const [clientes, setClientes] = useState([]);
+    const [ModalClienteAbierto, setModalClienteAbierto] = useState(false);
+    const [clienteEditando, setClienteEditando] = useState(null);
+    const [formCliente, setFormCliente] = useState({
+        usuario_id: '',
+        nombre_completo: '',
+        dni: '',
+        telefono: '',
+        email: '',
+        direccion: '',
+        numero_espacios: 1, // Default 1
+        ubicacion_espacios: '',
+        estado: 'activo', // Default 'activo'
+        observaciones: '',
+        // fecha_registro se auto-genera
+    });
+    //PAMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
     const [productos, setProductos] = useState([]);
     const [filtroTipo, setFiltroTipo] = useState('todas');
     const [filtroEstado, setFiltroEstado] = useState('todos');
@@ -168,10 +186,157 @@ const AdminPanel = () => {
         }
     ];
 
+    //PAMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+       //DATO EJEMPLO - CLIENTES
+const mockClientes = [
+    {
+        id: 1,
+        usuario_id: 101,
+        nombre_completo: 'Javier Pérez García',
+        dni: '12345678A',
+        telefono: '600111222',
+        email: 'javier.perez@example.com',
+        direccion: 'C/ Falsa 123, Madrid',
+        numero_espacios: 2,
+        ubicacion_espacios: 'Planta baja, Sector A; Planta alta, Sector B',
+        fecha_registro: '2023-10-01',
+        estado: 'activo',
+        observaciones: 'Cliente VIP, paga puntualmente.',
+        fecha_creacion: '2023-10-01T10:00:00Z',
+    },
+    {
+        id: 2,
+        usuario_id: 102,
+        nombre_completo: 'Laura Martín Soto',
+        dni: '98765432B',
+        telefono: '600333444',
+        email: 'laura.martin@example.com',
+        direccion: 'Av. Principal 45, Barcelona',
+        numero_espacios: 1,
+        ubicacion_espacios: 'Sótano, Plaza 5',
+        fecha_registro: '2023-11-15',
+        estado: 'pendiente',
+        observaciones: 'Esperando confirmación de pago.',
+        fecha_creacion: '2023-11-15T15:30:00Z',
+    },
+    {
+        id: 3,
+        usuario_id: null,
+        nombre_completo: 'Roberto Gómez',
+        dni: '55555555Z',
+        telefono: '600555666',
+        email: 'roberto.gomez@example.com',
+        direccion: 'C/ del Sol 20, Sevilla',
+        numero_espacios: 3,
+        ubicacion_espacios: 'Zona 1, 2 y 3',
+        fecha_registro: '2024-01-20',
+        estado: 'activo',
+        observaciones: null,
+        fecha_creacion: '2024-01-20T11:00:00Z',
+    },
+];
+
+        // Estados para MODAL CLIENTE (NUEVOS)
+    const abrirModalCliente = (cliente = null) => {
+        if (cliente) {
+            setClienteEditando(cliente);
+            setFormCliente({
+                usuario_id: cliente.usuario_id || '',
+                nombre_completo: cliente.nombre_completo,
+                dni: cliente.dni,
+                telefono: cliente.telefono,
+                email: cliente.email,
+                direccion: cliente.direccion,
+                numero_espacios: cliente.numero_espacios,
+                ubicacion_espacios: cliente.ubicacion_espacios || '',
+                estado: cliente.estado,
+                observaciones: cliente.observaciones || '',
+            });
+        } else {
+            setClienteEditando(null);
+            setFormCliente({
+                usuario_id: '',
+                nombre_completo: '',
+                dni: '',
+                telefono: '',
+                email: '',
+                direccion: '',
+                numero_espacios: 1,
+                ubicacion_espacios: '',
+                estado: 'activo',
+                observaciones: '',
+            });
+        }
+        setModalClienteAbierto(true);
+    };
+
+    const agregarOActualizarCliente = (e) => {
+        e.preventDefault();
+        // Validación básica de campos obligatorios
+        const requiredFields = ['nombre_completo', 'dni', 'telefono', 'direccion', 'email', 'numero_espacios'];
+        for (const field of requiredFields) {
+            if (!formCliente[field]) {
+                console.error(`El campo ${field} es obligatorio.`);
+                // En un entorno real, mostrarías un mensaje al usuario
+                return;
+            }
+        }
+        
+        const nuevoCliente = { ...formCliente };
+        
+        // Conversión a enteros y manejo de IDs opcionales
+        nuevoCliente.numero_espacios = parseInt(nuevoCliente.numero_espacios, 10);
+        nuevoCliente.usuario_id = nuevoCliente.usuario_id ? parseInt(nuevoCliente.usuario_id, 10) : null;
+        
+        if (clienteEditando) {
+            // Lógica de Edición
+            const updatedClientes = clientes.map(c =>
+                c.id === clienteEditando.id ? { ...clienteEditando, ...nuevoCliente } : c
+            );
+            setClientes(updatedClientes);
+            console.log("Cliente actualizado:", { id: clienteEditando.id, ...nuevoCliente });
+        } else {
+            // Lógica de Adición
+            const newId = clientes.length > 0 ? Math.max(...clientes.map(c => c.id)) + 1 : 1;
+            
+            // Generar fecha_registro en formato YYYY-MM-DD
+            const fecha = new Date();
+            const formattedDate = fecha.getFullYear() + '-' + 
+                                String(fecha.getMonth() + 1).padStart(2, '0') + '-' + 
+                                String(fecha.getDate()).padStart(2, '0');
+            
+            const clienteFinal = {
+                id: newId,
+                ...nuevoCliente,
+                fecha_registro: formattedDate, // Fecha automática
+                fecha_creacion: new Date().toISOString(),
+            };
+            setClientes([...clientes, clienteFinal]);
+            console.log("Cliente agregado:", clienteFinal);
+        }
+
+        setModalClienteAbierto(false);
+        setClienteEditando(null);
+    };
+
+    const eliminarCliente = (id) => {
+        // NOTA: En este entorno, se usa console.log en lugar de window.confirm() o alert(), 
+        // ya que están deshabilitados. En un entorno real, usarías un modal de confirmación.
+        if (window.confirm(`¿Estás seguro de que quieres eliminar al cliente con ID ${id}?`)) { // Simula la confirmación
+            setClientes(clientes.filter(c => c.id !== id));
+            console.log(`Cliente con ID ${id} eliminado.`);
+        }
+    };
+
+//PAMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+
     useEffect(() => {
         setTimeout(() => {
             setSolicitudes(solicitudesEjemplo);
             setProductos(productosEjemplo);
+            //PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMMMMMMMMMMMMMMMMMM
+            setClientes(mockClientes); 
+            //PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMMMMMMMMMMMMMMMMMM
             setCargando(false);
         }, 1500);
     }, []);
@@ -499,6 +664,12 @@ const AdminPanel = () => {
                         >
                             Gestión de Urnas
                         </button>
+                        <button 
+                            className={`vista-btn ${vistaActiva === 'vista-clientes' ? 'activa' : ''}`}
+                            onClick={() => setVistaActiva('vista-clientes')}
+                        >
+                            Gestion de Clientes
+                        </button>
                     </div>
                     
                     {/* ESTADÍSTICAS */}
@@ -530,6 +701,218 @@ const AdminPanel = () => {
                     </div>
                 </div>
             </div>
+{/*PAMMMMMMMMMMMMMMMMMMMMMMMMmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmMMM */}
+{vistaActiva === 'vista-clientes'    && (
+    <><div className="vista-clientes">
+            <h2 className="vista-titulo">Gestión de Clientes</h2>
+            
+            {/* Estadísticas */}
+            <div className="estadisticas-grid">
+                <div className="stat-card">
+                    <h3>👥 Total de Clientes</h3>
+                    <p className="stat-numero">{clientes.length}</p>
+                </div>
+            </div>
+
+            {/* Botón de Agregar Cliente */}
+            <div className="accion-header">
+                <button className="btn btn-agregar" onClick={() => abrirModalCliente()}>
+                    ➕👤 Agregar Cliente
+                </button>
+            </div>
+
+            {/* MODAL CLIENTE */}
+{ModalClienteAbierto && (
+    <div className="modal-overlay" onClick={() => setModalClienteAbierto(false)}>
+        <div className="modal-content cliente-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+                <h2>{clienteEditando ? 'Editar Cliente' : 'Agregar Cliente'}</h2>
+                <button 
+                    className="modal-close"
+                    onClick={() => setModalClienteAbierto(false)}
+                >
+                    ×
+                </button>
+            </div>
+
+            <form className="form-producto" onSubmit={agregarOActualizarCliente}>
+                <div className="form-grid">
+                    <div className="form-group">
+                        <label>Nombre Completo *</label>
+                        <input
+                            type="text"
+                            value={formCliente.nombre_completo}
+                            onChange={(e) => setFormCliente(prev => ({...prev, nombre_completo: e.target.value}))}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>DNI *</label>
+                        <input
+                            type="text"
+                            value={formCliente.dni}
+                            onChange={(e) => setFormCliente(prev => ({...prev, dni: e.target.value}))}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Teléfono *</label>
+                        <input
+                            type="text"
+                            value={formCliente.telefono}
+                            onChange={(e) => setFormCliente(prev => ({...prev, telefono: e.target.value}))}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Email *</label>
+                        <input
+                            type="email"
+                            value={formCliente.email}
+                            onChange={(e) => setFormCliente(prev => ({...prev, email: e.target.value}))}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group full-width">
+                        <label>Dirección *</label>
+                        <input
+                            type="text"
+                            value={formCliente.direccion}
+                            onChange={(e) => setFormCliente(prev => ({...prev, direccion: e.target.value}))}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Número de Espacios *</label>
+                        <input
+                            type="number"
+                            min="1"
+                            value={formCliente.numero_espacios}
+                            onChange={(e) => setFormCliente(prev => ({...prev, numero_espacios: e.target.value}))}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group full-width">
+                        <label>Ubicación de Espacios</label>
+                        <input
+                            type="text"
+                            value={formCliente.ubicacion_espacios}
+                            onChange={(e) => setFormCliente(prev => ({...prev, ubicacion_espacios: e.target.value}))}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Estado *</label>
+                        <select
+                            value={formCliente.estado}
+                            onChange={(e) => setFormCliente(prev => ({...prev, estado: e.target.value}))}
+                            required
+                        >
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+
+                    <div className="form-group full-width">
+                        <label>Observaciones</label>
+                        <textarea
+                            value={formCliente.observaciones}
+                            onChange={(e) => setFormCliente(prev => ({...prev, observaciones: e.target.value}))}
+                            rows="3"
+                        />
+                    </div>
+                </div>
+
+                <div className="form-acciones">
+                    <button 
+                        type="button" 
+                        className="btn btn-cancelar"
+                        onClick={() => setModalClienteAbierto(false)}
+                    >
+                        Cancelar
+                    </button>
+                    <button 
+                        type="submit" 
+                        className="btn btn-guardar"
+                    >
+                        {clienteEditando ? '💾 Actualizar' : '➕ Agregar'} Cliente
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+)}
+
+
+            {/* Tabla de Clientes */}
+            <div className="tabla-responsive">
+                <table className="tabla-solicitudes"> {/* Reutilizamos la clase tabla-solicitudes */}
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario ID</th>
+                            <th>Nombre Completo</th>
+                            <th>DNI</th>
+                            <th>Teléfono</th>
+                            <th>Email</th>
+                            <th>Dirección</th>
+                            <th>Nº Espacios</th>
+                            <th>Ubicación Espacios</th>
+                            <th>Estado</th>
+                            <th>Observaciones</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {clientes.map(cliente => (
+                            <tr key={cliente.id}>
+                                <td>{cliente.id}</td>
+                                <td>{cliente.usuario_id || 'N/A'}</td>
+                                <td>{cliente.nombre_completo}</td>
+                                <td>{cliente.dni}</td>
+                                <td>{cliente.telefono}</td>
+                                <td>{cliente.email}</td>
+                                <td>{cliente.direccion.substring(0, 30) + (cliente.direccion.length > 30 ? '...' : '')}</td>
+                                <td>{cliente.numero_espacios}</td>
+                                <td>{cliente.ubicacion_espacios ? cliente.ubicacion_espacios.substring(0, 20) + (cliente.ubicacion_espacios.length > 20 ? '...' : '') : 'N/A'}</td>
+                                <td>
+                                    <span className={`estado-badge estado-${cliente.estado.toLowerCase().replace(/ /g, '-')}`}>
+                                        {cliente.estado}
+                                    </span>
+                                </td>
+                                <td>{cliente.observaciones ? cliente.observaciones.substring(0, 30) + (cliente.observaciones.length > 30 ? '...' : '') : 'N/A'}</td>
+                                <td className="acciones-col">
+                                    <button
+                                        className="btn-accion editar"
+                                        title="Editar Cliente"
+                                        onClick={() => abrirModalCliente(cliente)}
+                                    >
+                                        ✏️
+                                    </button>
+                                    <button
+                                        className="btn-accion eliminar"
+                                        title="Eliminar Cliente"
+                                        onClick={() => eliminarCliente(cliente.id)}
+                                    >
+                                        🗑️
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+            {clientes.length === 0 && <p className="no-data-msg">No hay clientes registrados.</p>}
+        </div></>
+)}
+
+{/*PAMMMMMMMMMMMMMMMMMMMMMMMMmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmMMM */}
 
             {/* VISTA DE SOLICITUDES */}
             {vistaActiva === 'solicitudes' && (

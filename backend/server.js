@@ -11,7 +11,7 @@ const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
   database: 'funeraria',
-  password: 'Picholin_9',
+  password: 'Badatitos0',
   port: 5432,
 });
 
