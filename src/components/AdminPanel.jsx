@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './AdminPanel.css';
+import axios from "axios";
 
 const AdminPanel = () => {
     const [vistaActiva, setVistaActiva] = useState('solicitudes'); // 'solicitudes' o 'productos'
@@ -169,12 +170,62 @@ const AdminPanel = () => {
     ];
 
     useEffect(() => {
-        setTimeout(() => {
-            setSolicitudes(solicitudesEjemplo);
-            setProductos(productosEjemplo);
-            setCargando(false);
-        }, 1500);
-    }, []);
+  const cargarDatos = async () => {
+    try {
+      setCargando(true);
+
+      const [asesoria, funerarios, cremacion] = await Promise.all([
+        axios.get("http://localhost:5000/api/asesoria-general"),
+        axios.get("http://localhost:5000/api/planes-funerarios"),
+        axios.get("http://localhost:5000/api/planes-cremacion"),
+      ]);
+
+      // Normaliza la estructura para que React entienda todas igual
+      const normalizar = (arr, tipoLabel, tipoCodigo) =>
+        arr.map((s) => ({
+          id_solicitud: s.id,
+          tipo: tipoCodigo,
+          estado: s.estado || "nueva",
+          prioridad: s.prioridad || "media",
+          fecha_creacion: s.fecha_creacion || s.fecha_servicio || new Date().toISOString(),
+          datos_solicitud: {
+            nombre: s.nombre || s.nombre_completo,
+            telefono: s.telefono,
+            email: s.email,
+            ciudad: s.ciudad || s.ubicacion || "No especificada",
+            servicio: tipoLabel,
+            mensaje: s.mensaje || s.mensaje_adicional || "(Sin mensaje adicional)",
+            fecha_servicio: s.fecha_servicio,
+            detalles: {
+              tipo_servicio: s.tipo_servicio || s.tipo_plan || s.tipo_cremacion || "",
+              tipo_ceremonia: s.tipo_ceremonia,
+              capilla: s.capilla,
+              lugar_cremacion: s.lugar_cremacion,
+              tipo_ataud: s.tipo_ataud,
+              urna: s.urna || s.tipo_urna,
+              flores: s.flores,
+              adicionales: s.adicionales,
+            },
+          },
+        }));
+
+      const todas = [
+        ...normalizar(asesoria.data, "Asesoría General", "asesoria_24_7"),
+        ...normalizar(funerarios.data, "Plan Funerario", "plan_estandar"),
+        ...normalizar(cremacion.data, "Plan Cremación", "plan_premium"),
+      ];
+
+      setSolicitudes(todas);
+    } catch (error) {
+      console.error("Error al cargar datos del servidor:", error);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  cargarDatos();
+}, []);
+
 
     // FUNCIONES PARA SOLICITUDES
     const solicitudesFiltradas = solicitudes.filter(s => {
@@ -325,16 +376,37 @@ const AdminPanel = () => {
                 <div className="detalles-solicitud">
                     <h5 className="detalles-titulo">Detalles de la solicitud:</h5>
                     <div className="detalles-contenido">
-                        {Object.entries(datos).map(([key, value]) => (
-                            key !== 'nombre' && key !== 'telefono' && key !== 'email' && (
-                                <DetailItem 
-                                    key={key} 
-                                    label={key.replace(/_/g, ' ')} 
-                                    value={value} 
-                                />
-                            )
-                        ))}
-                    </div>
+
+  {Object.entries(datos).map(([key, value]) => {
+    if (['nombre', 'telefono', 'email'].includes(key)) return null;
+
+            if (typeof value === 'object' && value !== null) {
+                return (
+                    <div key={key} className="detalle-subgrupo">
+                    <h6>{key.replace(/_/g, ' ')}:</h6>
+                    {Object.entries(value)
+                        .filter(([_, subVal]) => subVal)
+                        .map(([subKey, subVal]) => (
+                    <DetailItem
+                        key={`${key}-${subKey}`}
+                        label={subKey.replace(/_/g, ' ')}
+                        value={String(subVal)}
+                    />
+                 ))}
+                </div>
+                );
+            }
+
+                    return (
+                        <DetailItem
+                            key={key}
+                            label={key.replace(/_/g, ' ')}
+                            value={String(value)}
+                        />
+                    );
+                })}
+                </div>
+
                 </div>
 
                 <div className="tarjeta-acciones">
@@ -579,21 +651,21 @@ const AdminPanel = () => {
                     </div>
 
                     <div className="solicitudes-grid">
-                        {solicitudesFiltradas.length === 0 ? (
-                            <div className="sin-resultados">
-                                <div className="sin-resultados-icon">📭</div>
-                                <h3>No hay solicitudes</h3>
-                                <p>No se encontraron solicitudes con los filtros aplicados</p>
-                            </div>
-                        ) : (
-                            solicitudesFiltradas.map(solicitud => (
-                                <TarjetaSolicitud 
-                                    key={solicitud.id_solicitud} 
-                                    solicitud={solicitud} 
+                    {solicitudesFiltradas.length === 0 ? (
+                <div className="sin-resultados">
+                        <div className="sin-resultados-icon">📭</div>
+                            <h3>No hay solicitudes</h3>
+                            <p>No se encontraron solicitudes con los filtros aplicados</p>
+                        </div>
+                     ) : (
+                            solicitudesFiltradas.map((solicitud) => (
+                                <TarjetaSolicitud
+                                    key={`${solicitud.tipo}-${solicitud.id_solicitud || crypto.randomUUID()}`}
+                                    solicitud={solicitud}
                                 />
-                            ))
+                             ))
                         )}
-                    </div>
+                </div>
                 </>
             )}
 

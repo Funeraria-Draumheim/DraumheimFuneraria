@@ -300,6 +300,40 @@ app.post("/api/planes-cremacion", async (req, res) => {
     }
 });
 
+//  Obtener solicitudes de asesoría general
+app.get("/api/asesoria-general", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM solicitudes_asesoria_general ORDER BY id DESC");
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error al obtener solicitudes de asesoría general:", error);
+    res.status(500).json({ error: "Error al obtener datos" });
+  }
+});
+
+//  Obtener solicitudes de planes funerarios (entierro)
+app.get("/api/planes-funerarios", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM solicitudes_planes_funerarios ORDER BY id DESC");
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error al obtener solicitudes de planes funerarios:", error);
+    res.status(500).json({ error: "Error al obtener datos" });
+  }
+});
+
+//  Obtener solicitudes de planes de cremación
+app.get("/api/planes-cremacion", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM solicitudes_planes_cremacion ORDER BY id DESC");
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error al obtener solicitudes de cremación:", error);
+    res.status(500).json({ error: "Error al obtener datos" });
+  }
+});
+
+
 app.listen(5000, () => {
   console.log('Servidor en http://localhost:5000');
 });
