@@ -6,6 +6,7 @@
 }
 
 /*PAMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM*/
+
 /* Tabla general */
 
 .tabla-solicitudes {
@@ -71,7 +72,9 @@
 .estado-activo {
   background-color: #16a34a;
 }
-
+.estado-pendiente {
+  background-color: #ccdb00;
+}
 .estado-inactivo {
   background-color: #9ca3af;
 }
@@ -82,6 +85,31 @@
   margin-top: 1rem;
   color: #6b7280;
 }
+.tabla-clientes-container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 0 30px;
+}
+
+.tabla-clientes-container .tabla-responsive {
+  overflow-x: auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.clientes-estadistica {
+  max-width: 400px;
+  margin: 0 auto 25px;
+}
+
+.stat-card .stat-numero,
+.stat-card .stat-number {
+  text-align: center;
+}
+
+
+
 /*PAMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM*/
 
 

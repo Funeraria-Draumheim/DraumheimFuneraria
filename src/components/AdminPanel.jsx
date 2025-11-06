@@ -19,7 +19,7 @@ const AdminPanel = () => {
         ubicacion_espacios: '',
         estado: 'activo', // Default 'activo'
         observaciones: '',
-        // fecha_registro se auto-genera
+        // fecha_registro y fecha_creacion se auto-generarán
     });
     //PAMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
     const [productos, setProductos] = useState([]);
@@ -433,7 +433,8 @@ const mockClientes = [
         totalSolicitudes: solicitudes.length,
         nuevasSolicitudes: solicitudes.filter(s => s.estado === 'nueva').length,
         totalProductos: productos.length,
-        stockBajo: productos.filter(p => p.stock < 5).length
+        stockBajo: productos.filter(p => p.stock < 5).length,
+        totalCliente : clientes.length
     };
 
     const formatearFecha = (fecha) => {
@@ -673,186 +674,212 @@ const mockClientes = [
                     </div>
                     
                     {/* ESTADÍSTICAS */}
-                    <div className="estadisticas-grid">
-                        <div className="stat-card total">
-                            <div className="stat-icon">{vistaActiva === 'solicitudes' ? '' : ''}</div>
-                            <div className="stat-content">
-                                <div className="stat-number">
-                                    {vistaActiva === 'solicitudes' ? estadisticas.totalSolicitudes : estadisticas.totalProductos}
-                                </div>
-                                <div className="stat-label">
-                                    {vistaActiva === 'solicitudes' ? 'Total Solicitudes' : 'Total Productos'}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="stat-card nuevas">
-                            <div className="stat-icon">
-                                {vistaActiva === 'solicitudes' ? '' : ''}
-                            </div>
-                            <div className="stat-content">
-                                <div className="stat-number">
-                                    {vistaActiva === 'solicitudes' ? estadisticas.nuevasSolicitudes : estadisticas.stockBajo}
-                                </div>
-                                <div className="stat-label">
-                                    {vistaActiva === 'solicitudes' ? 'Nuevas' : 'Stock Bajo'}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<div className="estadisticas-grid">
+    {vistaActiva === 'solicitudes' && (
+        <>
+            <div className="stat-card total">
+                <div className="stat-content">
+                    <div className="stat-number">{estadisticas.totalSolicitudes}</div>
+                    <div className="stat-label">Total Solicitudes</div>
                 </div>
             </div>
-{/*PAMMMMMMMMMMMMMMMMMMMMMMMMmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmMMM */}
-{vistaActiva === 'vista-clientes'    && (
-    <><div className="vista-clientes">
-            <h2 className="vista-titulo">Gestión de Clientes</h2>
-            
-            {/* Estadísticas */}
-            <div className="estadisticas-grid">
-                <div className="stat-card">
-                    <h3>👥 Total de Clientes</h3>
-                    <p className="stat-numero">{clientes.length}</p>
+            <div className="stat-card nuevas">
+                <div className="stat-content">
+                    <div className="stat-number">{estadisticas.nuevasSolicitudes}</div>
+                    <div className="stat-label">Nuevas</div>
                 </div>
             </div>
+        </>
+    )}
 
-            {/* Botón de Agregar Cliente */}
-            <div className="accion-header">
-                <button className="btn btn-agregar" onClick={() => abrirModalCliente()}>
-                    ➕👤 Agregar Cliente
-                </button>
-            </div>
-
-            {/* MODAL CLIENTE */}
-{ModalClienteAbierto && (
-    <div className="modal-overlay" onClick={() => setModalClienteAbierto(false)}>
-        <div className="modal-content cliente-modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-                <h2>{clienteEditando ? 'Editar Cliente' : 'Agregar Cliente'}</h2>
-                <button 
-                    className="modal-close"
-                    onClick={() => setModalClienteAbierto(false)}
-                >
-                    ×
-                </button>
-            </div>
-
-            <form className="form-producto" onSubmit={agregarOActualizarCliente}>
-                <div className="form-grid">
-                    <div className="form-group">
-                        <label>Nombre Completo *</label>
-                        <input
-                            type="text"
-                            value={formCliente.nombre_completo}
-                            onChange={(e) => setFormCliente(prev => ({...prev, nombre_completo: e.target.value}))}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label>DNI *</label>
-                        <input
-                            type="text"
-                            value={formCliente.dni}
-                            onChange={(e) => setFormCliente(prev => ({...prev, dni: e.target.value}))}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label>Teléfono *</label>
-                        <input
-                            type="text"
-                            value={formCliente.telefono}
-                            onChange={(e) => setFormCliente(prev => ({...prev, telefono: e.target.value}))}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label>Email *</label>
-                        <input
-                            type="email"
-                            value={formCliente.email}
-                            onChange={(e) => setFormCliente(prev => ({...prev, email: e.target.value}))}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group full-width">
-                        <label>Dirección *</label>
-                        <input
-                            type="text"
-                            value={formCliente.direccion}
-                            onChange={(e) => setFormCliente(prev => ({...prev, direccion: e.target.value}))}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label>Número de Espacios *</label>
-                        <input
-                            type="number"
-                            min="1"
-                            value={formCliente.numero_espacios}
-                            onChange={(e) => setFormCliente(prev => ({...prev, numero_espacios: e.target.value}))}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group full-width">
-                        <label>Ubicación de Espacios</label>
-                        <input
-                            type="text"
-                            value={formCliente.ubicacion_espacios}
-                            onChange={(e) => setFormCliente(prev => ({...prev, ubicacion_espacios: e.target.value}))}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label>Estado *</label>
-                        <select
-                            value={formCliente.estado}
-                            onChange={(e) => setFormCliente(prev => ({...prev, estado: e.target.value}))}
-                            required
-                        >
-                            <option value="activo">Activo</option>
-                            <option value="inactivo">Inactivo</option>
-                        </select>
-                    </div>
-
-                    <div className="form-group full-width">
-                        <label>Observaciones</label>
-                        <textarea
-                            value={formCliente.observaciones}
-                            onChange={(e) => setFormCliente(prev => ({...prev, observaciones: e.target.value}))}
-                            rows="3"
-                        />
-                    </div>
+    {vistaActiva === 'productos' && (
+        <>
+            <div className="stat-card total">
+                <div className="stat-content">
+                    <div className="stat-number">{estadisticas.totalProductos}</div>
+                    <div className="stat-label">Total Productos</div>
                 </div>
-
-                <div className="form-acciones">
-                    <button 
-                        type="button" 
-                        className="btn btn-cancelar"
-                        onClick={() => setModalClienteAbierto(false)}
-                    >
-                        Cancelar
-                    </button>
-                    <button 
-                        type="submit" 
-                        className="btn btn-guardar"
-                    >
-                        {clienteEditando ? '💾 Actualizar' : '➕ Agregar'} Cliente
-                    </button>
+            </div>
+            <div className="stat-card nuevas">
+                <div className="stat-content">
+                    <div className="stat-number">{estadisticas.stockBajo}</div>
+                    <div className="stat-label">Stock Bajo</div>
                 </div>
-            </form>
+            </div>
+        </>
+    )}
+
+    {vistaActiva === 'vista-clientes' && (
+        <div className="stat-card total">
+            <div className="stat-content">
+                <div className="stat-number">{estadisticas.totalCliente}</div>
+                <div className="stat-label">Total Clientes</div>
+            </div>
         </div>
+    )}
+</div>
+
+                </div>
+            </div>
+ {/*PAMMMMMMMMMMMMMMMMMMMMMMMMmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmMMM */}
+{vistaActiva === 'vista-clientes' && (
+    <div className="vista-clientes">
+
+        {/* Botón de Agregar Cliente */}
+<div className="productos-header">
+    <div className="header-acciones">
+        <button className="btn btn-agregar" onClick={() => abrirModalCliente()}>
+            ➕👤 Agregar Cliente
+        </button>
     </div>
-)}
+</div>
 
 
-            {/* Tabla de Clientes */}
+
+        {/* MODAL CLIENTE */}
+        {ModalClienteAbierto && (
+            <div className="modal-overlay" onClick={() => setModalClienteAbierto(false)}>
+                <div className="modal-content cliente-modal" onClick={e => e.stopPropagation()}>
+                    <div className="modal-header">
+                        <h2>{clienteEditando ? 'Editar Cliente' : 'Agregar Cliente'}</h2>
+                        <button 
+                            className="modal-close"
+                            onClick={() => setModalClienteAbierto(false)}
+                        >
+                            &times;
+                        </button>
+                    </div>
+
+                    <form className="form-producto" onSubmit={agregarOActualizarCliente}>
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label>Nombre Completo *</label>
+                                <input
+                                    type="text"
+                                    value={formCliente.nombre_completo}
+                                    onChange={(e) => setFormCliente(prev => ({...prev, nombre_completo: e.target.value}))}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>DNI *</label>
+                                <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    pattern="\d{8}"
+                                    maxLength="8"
+                                    title="Debe contener exactamente 8 dígitos numéricos"
+                                    value={formCliente.dni}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/\D/g, ''); // solo números
+                                        setFormCliente(prev => ({ ...prev, dni: value }));
+                                    }}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Teléfono *</label>
+                                <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    pattern="\d{9}"
+                                    maxLength="9"
+                                    title="Debe contener exactamente 9 dígitos numéricos"
+                                    value={formCliente.telefono}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/\D/g, ''); // solo números
+                                        setFormCliente(prev => ({ ...prev, telefono: value }));
+                                    }}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Email *</label>
+                                <input
+                                    type="email"
+                                    value={formCliente.email}
+                                    onChange={(e) => setFormCliente(prev => ({...prev, email: e.target.value}))}
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group full-width">
+                                <label>Dirección *</label>
+                                <input
+                                    type="text"
+                                    value={formCliente.direccion}
+                                    onChange={(e) => setFormCliente(prev => ({...prev, direccion: e.target.value}))}
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Número de Espacios *</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    value={formCliente.numero_espacios}
+                                    onChange={(e) => setFormCliente(prev => ({...prev, numero_espacios: parseInt(e.target.value) || 1}))}
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Ubicación de Espacios *</label>
+                                <input
+                                    type="text"
+                                    value={formCliente.ubicacion_espacios}
+                                    onChange={(e) => setFormCliente(prev => ({...prev, ubicacion_espacios: e.target.value}))}
+                                    required
+                                />
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>Estado *</label>
+                                <select
+                                    value={formCliente.estado}
+                                    onChange={(e) => setFormCliente(prev => ({...prev, estado: e.target.value}))}
+                                    required
+                                >
+                                    <option value="activo">Activo</option>
+                                    <option value="inactivo">Inactivo</option>
+                                    <option value="pendiente">Pendiente</option>
+                                </select>
+                            </div>
+
+                            <div className="form-group full-width">
+                                <label>Observaciones</label>
+                                <textarea
+                                    value={formCliente.observaciones}
+                                    onChange={(e) => setFormCliente(prev => ({...prev, observaciones: e.target.value}))}
+                                    rows="3"
+                                />
+                            </div>
+                        </div>
+                        <div className="form-acciones">
+                            <button 
+                                type="button" 
+                                className="btn btn-cancelar"
+                                onClick={() => setModalClienteAbierto(false)}
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                type="submit" 
+                                className="btn btn-guardar"
+                            >
+                                {clienteEditando ? '💾 Actualizar' : '➕ Agregar'} Cliente
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        )}
+
+        {/* Tabla de Clientes */}
+        <div className="tabla-clientes-container">
             <div className="tabla-responsive">
-                <table className="tabla-solicitudes"> {/* Reutilizamos la clase tabla-solicitudes */}
+                <table className="tabla-solicitudes">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -909,10 +936,11 @@ const mockClientes = [
                 </table>
             </div>
             {clientes.length === 0 && <p className="no-data-msg">No hay clientes registrados.</p>}
-        </div></>
+        </div>
+    </div>
 )}
-
 {/*PAMMMMMMMMMMMMMMMMMMMMMMMMmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmMMM */}
+
 
             {/* VISTA DE SOLICITUDES */}
             {vistaActiva === 'solicitudes' && (
