@@ -5,22 +5,36 @@ const AdminPanel = () => {
     const [vistaActiva, setVistaActiva] = useState('solicitudes'); // 'solicitudes' o 'productos'
     const [solicitudes, setSolicitudes] = useState([]);
     //PAMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
-    const [clientes, setClientes] = useState([]);
-    const [ModalClienteAbierto, setModalClienteAbierto] = useState(false);
-    const [clienteEditando, setClienteEditando] = useState(null);
-    const [formCliente, setFormCliente] = useState({
-        usuario_id: '',
-        nombre_completo: '',
-        dni: '',
-        telefono: '',
-        email: '',
-        direccion: '',
-        numero_espacios: 1, // Default 1
-        ubicacion_espacios: '',
-        estado: 'activo', // Default 'activo'
-        observaciones: '',
-        // fecha_registro y fecha_creacion se auto-generarán
-    });
+const [clientes, setClientes] = useState([]);
+const [ModalClienteAbierto, setModalClienteAbierto] = useState(false);
+const [clienteEditando, setClienteEditando] = useState(null);
+const [formCliente, setFormCliente] = useState({
+  nombre_completo: '',
+  dni: '',
+  telefono: '',
+  email: '',
+  direccion: '',
+  numero_espacios: 1,
+  ubicacion_espacios: '',
+  estado: 'activo',
+  observaciones: '',
+});
+
+// ✅ Cargar clientes desde la BD al montar el componente
+useEffect(() => {
+  const fetchClientes = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/clientes');
+      if (!res.ok) throw new Error('Error al cargar clientes');
+      const data = await res.json();
+      setClientes(data);
+    } catch (err) {
+      console.error('❌ Error al obtener clientes:', err);
+    }
+  };
+  fetchClientes();
+}, []);
+
     //PAMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
     const [productos, setProductos] = useState([]);
     const [filtroTipo, setFiltroTipo] = useState('todas');
@@ -187,61 +201,13 @@ const AdminPanel = () => {
     ];
 
     //PAMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
-       //DATO EJEMPLO - CLIENTES
-const mockClientes = [
-    {
-        id: 1,
-        usuario_id: 101,
-        nombre_completo: 'Javier Pérez García',
-        dni: '12345678A',
-        telefono: '600111222',
-        email: 'javier.perez@example.com',
-        direccion: 'C/ Falsa 123, Madrid',
-        numero_espacios: 2,
-        ubicacion_espacios: 'Planta baja, Sector A; Planta alta, Sector B',
-        fecha_registro: '2023-10-01',
-        estado: 'activo',
-        observaciones: 'Cliente VIP, paga puntualmente.',
-        fecha_creacion: '2023-10-01T10:00:00Z',
-    },
-    {
-        id: 2,
-        usuario_id: 102,
-        nombre_completo: 'Laura Martín Soto',
-        dni: '98765432B',
-        telefono: '600333444',
-        email: 'laura.martin@example.com',
-        direccion: 'Av. Principal 45, Barcelona',
-        numero_espacios: 1,
-        ubicacion_espacios: 'Sótano, Plaza 5',
-        fecha_registro: '2023-11-15',
-        estado: 'pendiente',
-        observaciones: 'Esperando confirmación de pago.',
-        fecha_creacion: '2023-11-15T15:30:00Z',
-    },
-    {
-        id: 3,
-        usuario_id: null,
-        nombre_completo: 'Roberto Gómez',
-        dni: '55555555Z',
-        telefono: '600555666',
-        email: 'roberto.gomez@example.com',
-        direccion: 'C/ del Sol 20, Sevilla',
-        numero_espacios: 3,
-        ubicacion_espacios: 'Zona 1, 2 y 3',
-        fecha_registro: '2024-01-20',
-        estado: 'activo',
-        observaciones: null,
-        fecha_creacion: '2024-01-20T11:00:00Z',
-    },
-];
+
 
         // Estados para MODAL CLIENTE (NUEVOS)
     const abrirModalCliente = (cliente = null) => {
         if (cliente) {
             setClienteEditando(cliente);
             setFormCliente({
-                usuario_id: cliente.usuario_id || '',
                 nombre_completo: cliente.nombre_completo,
                 dni: cliente.dni,
                 telefono: cliente.telefono,
@@ -255,7 +221,6 @@ const mockClientes = [
         } else {
             setClienteEditando(null);
             setFormCliente({
-                usuario_id: '',
                 nombre_completo: '',
                 dni: '',
                 telefono: '',
@@ -270,63 +235,63 @@ const mockClientes = [
         setModalClienteAbierto(true);
     };
 
-    const agregarOActualizarCliente = (e) => {
-        e.preventDefault();
-        // Validación básica de campos obligatorios
-        const requiredFields = ['nombre_completo', 'dni', 'telefono', 'direccion', 'email', 'numero_espacios'];
-        for (const field of requiredFields) {
-            if (!formCliente[field]) {
-                console.error(`El campo ${field} es obligatorio.`);
-                // En un entorno real, mostrarías un mensaje al usuario
-                return;
-            }
-        }
-        
-        const nuevoCliente = { ...formCliente };
-        
-        // Conversión a enteros y manejo de IDs opcionales
-        nuevoCliente.numero_espacios = parseInt(nuevoCliente.numero_espacios, 10);
-        nuevoCliente.usuario_id = nuevoCliente.usuario_id ? parseInt(nuevoCliente.usuario_id, 10) : null;
-        
-        if (clienteEditando) {
-            // Lógica de Edición
-            const updatedClientes = clientes.map(c =>
-                c.id === clienteEditando.id ? { ...clienteEditando, ...nuevoCliente } : c
-            );
-            setClientes(updatedClientes);
-            console.log("Cliente actualizado:", { id: clienteEditando.id, ...nuevoCliente });
-        } else {
-            // Lógica de Adición
-            const newId = clientes.length > 0 ? Math.max(...clientes.map(c => c.id)) + 1 : 1;
-            
-            // Generar fecha_registro en formato YYYY-MM-DD
-            const fecha = new Date();
-            const formattedDate = fecha.getFullYear() + '-' + 
-                                String(fecha.getMonth() + 1).padStart(2, '0') + '-' + 
-                                String(fecha.getDate()).padStart(2, '0');
-            
-            const clienteFinal = {
-                id: newId,
-                ...nuevoCliente,
-                fecha_registro: formattedDate, // Fecha automática
-                fecha_creacion: new Date().toISOString(),
-            };
-            setClientes([...clientes, clienteFinal]);
-            console.log("Cliente agregado:", clienteFinal);
-        }
+// 🟡 Agregar o actualizar cliente (POST o PUT)
+const agregarOActualizarCliente = async (e) => {
+  e.preventDefault();
+  const required = ['nombre_completo', 'dni', 'telefono', 'email', 'direccion'];
+  for (const f of required) if (!formCliente[f]) return alert(`El campo ${f} es obligatorio`);
 
-        setModalClienteAbierto(false);
-        setClienteEditando(null);
-    };
+  try {
+    let res;
+    if (clienteEditando) {
+      // PUT
+      res = await fetch(`http://localhost:5000/clientes/${clienteEditando.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formCliente),
+      });
+    } else {
+      // POST
+      res = await fetch('http://localhost:5000/clientes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formCliente),
+      });
+    }
 
-    const eliminarCliente = (id) => {
-        // NOTA: En este entorno, se usa console.log en lugar de window.confirm() o alert(), 
-        // ya que están deshabilitados. En un entorno real, usarías un modal de confirmación.
-        if (window.confirm(`¿Estás seguro de que quieres eliminar al cliente con ID ${id}?`)) { // Simula la confirmación
-            setClientes(clientes.filter(c => c.id !== id));
-            console.log(`Cliente con ID ${id} eliminado.`);
-        }
-    };
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Error en la operación');
+    }
+
+    const data = await res.json();
+    console.log('✅ Cliente guardado:', data);
+
+    // Refrescar lista
+    const refreshed = await fetch('http://localhost:5000/clientes');
+    setClientes(await refreshed.json());
+
+    setModalClienteAbierto(false);
+    setClienteEditando(null);
+  } catch (err) {
+    console.error('❌ Error al guardar cliente:', err);
+    alert(err.message);
+  }
+};
+
+// 🔴 Eliminar cliente
+const eliminarCliente = async (id) => {
+  if (!window.confirm('¿Eliminar este cliente?')) return;
+  try {
+    const res = await fetch(`http://localhost:5000/clientes/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Error al eliminar cliente');
+    setClientes(prev => prev.filter(c => c.id !== id));
+    console.log(`🗑️ Cliente ${id} eliminado`);
+  } catch (err) {
+    console.error('❌ Error al eliminar cliente:', err);
+    alert(err.message);
+  }
+};
 
 //PAMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 
@@ -334,9 +299,6 @@ const mockClientes = [
         setTimeout(() => {
             setSolicitudes(solicitudesEjemplo);
             setProductos(productosEjemplo);
-            //PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMMMMMMMMMMMMMMMMMM
-            setClientes(mockClientes); 
-            //PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMMMMMMMMMMMMMMMMMM
             setCargando(false);
         }, 1500);
     }, []);
@@ -883,7 +845,6 @@ const mockClientes = [
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Usuario ID</th>
                             <th>Nombre Completo</th>
                             <th>DNI</th>
                             <th>Teléfono</th>
@@ -900,7 +861,6 @@ const mockClientes = [
                         {clientes.map(cliente => (
                             <tr key={cliente.id}>
                                 <td>{cliente.id}</td>
-                                <td>{cliente.usuario_id || 'N/A'}</td>
                                 <td>{cliente.nombre_completo}</td>
                                 <td>{cliente.dni}</td>
                                 <td>{cliente.telefono}</td>

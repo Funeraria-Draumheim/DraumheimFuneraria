@@ -15,6 +15,120 @@ const pool = new Pool({
   port: 5432,
 });
 
+//PAMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+//CLIENTES  CRUD 
+app.get('/clientes', async (req, res) => {
+  try {
+    const allClientes = await pool.query(
+      'SELECT id, nombre_completo, dni, telefono, email, direccion, numero_espacios, ubicacion_espacios, fecha_registro, estado, observaciones, fecha_creacion FROM clientes_espacios ORDER BY fecha_registro DESC'
+    );
+    res.json(allClientes.rows);
+  } catch (error) {
+    console.error('Error al obtener clientes:', error);
+    res.status(500).json({ message: 'Error al obtener el listado de clientes' });
+  }
+});
+
+// REGISTRAR NUEVO CLIENTE 
+app.post('/clientes', async (req, res) => {
+  const { nombre_completo, dni, telefono, email, direccion, numero_espacios, ubicacion_espacios, estado, observaciones } = req.body;
+
+  try {
+    const existingClient = await pool.query(
+      'SELECT * FROM clientes_espacios WHERE dni = $1 OR email = $2',
+      [dni, email]
+    );
+
+    if (existingClient.rows.length > 0) {
+      const isEmailDup = existingClient.rows.some(row => row.email === email);
+      const isDniDup = existingClient.rows.some(row => row.dni === dni);
+
+      let message = 'El cliente ya existe.';
+      if (isEmailDup) message = 'El email ya está registrado para otro cliente.';
+      if (isDniDup) message = 'El DNI ya está registrado para otro cliente.';
+
+      return res.status(400).json({ message: message });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO clientes_espacios (nombre_completo, dni, telefono, email, direccion, numero_espacios, ubicacion_espacios, estado, observaciones, fecha_registro, fecha_creacion) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW()) 
+       RETURNING *`,
+      [nombre_completo, dni, telefono, email, direccion, numero_espacios, ubicacion_espacios, estado, observaciones]
+    );
+
+    res.status(201).json({
+      message: 'Cliente registrado exitosamente',
+      client: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Error al registrar cliente:', error);
+    res.status(500).json({ message: 'Error al registrar el nuevo cliente' });
+  }
+});
+
+
+// ACTUALIZAR CLIENTE POR ID
+app.put('/clientes/:id', async (req, res) => {
+  const { id } = req.params;
+  const { nombre_completo, dni, telefono, email, direccion, numero_espacios, ubicacion_espacios, estado, observaciones } = req.body;
+
+  try {
+    
+    const result = await pool.query(
+      `UPDATE clientes_espacios 
+       SET 
+         nombre_completo = $1, 
+         dni = $2, 
+         telefono = $3, 
+         email = $4, 
+         direccion = $5, 
+         numero_espacios = $6, 
+         ubicacion_espacios = $7, 
+         estado = $8, 
+         observaciones = $9
+       WHERE id = $10 
+       RETURNING *`,
+      [nombre_completo, dni, telefono, email, direccion, numero_espacios, ubicacion_espacios, estado, observaciones, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Cliente no encontrado' });
+    }
+
+    res.json({
+      message: 'Cliente actualizado exitosamente',
+      client: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Error al actualizar cliente:', error);
+    res.status(500).json({ message: 'Error al actualizar el cliente' });
+  }
+});
+
+// ELIMINAR CLIENTE POR ID
+app.delete('/clientes/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      'DELETE FROM clientes_espacios WHERE id = $1 RETURNING *',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Cliente no encontrado' });
+    }
+
+    res.json({ message: 'Cliente eliminado exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar cliente:', error);
+    res.status(500).json({ message: 'Error al eliminar el cliente' });
+  }
+});
+
+//PAMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+
 //REGISTER
 app.post('/register', async (req, res) => {
   const { username, email, password, tel, ter } = req.body;

@@ -1,0 +1,15 @@
+--DROP TABLE clientes_espacios
+--CREATE TABLE clientes_espacios (
+   id SERIAL PRIMARY KEY,
+    nombre_completo VARCHAR(100) NOT NULL,
+    dni VARCHAR(20) UNIQUE NOT NULL,
+    telefono VARCHAR(20) NOT NULL,
+    email VARCHAR(100),
+    direccion TEXT NOT NULL,
+    numero_espacios INTEGER NOT NULL DEFAULT 1,
+    ubicacion_espacios TEXT,
+    fecha_registro DATE NOT NULL,
+    estado VARCHAR(20) DEFAULT 'activo' CHECK (estado IN ('activo', 'inactivo', 'suspendido')),
+    observaciones TEXT,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
