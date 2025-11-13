@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import VistaEmpleados from './VistaEmpleados';
 import './AdminPanel.css';
-import axios from "axios";
 
 const AdminPanel = () => {
     const [vistaActiva, setVistaActiva] = useState('solicitudes'); // 'solicitudes' o 'productos'

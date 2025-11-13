@@ -9,7 +9,7 @@ const pool = new Pool({
   user: "postgres",
   host: "localhost",
   database: "funeraria",
-  password: "password123456",
+  password: "Picholin_9",
   port: 5432,
 });
 
@@ -26,7 +26,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// ✅ Ruta para obtener todas las urnas
+//  Ruta para obtener todas las urnas
 router.get("/urnas", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM urnas ORDER BY id DESC");
@@ -37,7 +37,7 @@ router.get("/urnas", async (req, res) => {
   }
 });
 
-// ✅ Ruta para registrar una urna con imagen
+//  Ruta para registrar una urna con imagen
 router.post("/urnas", upload.single("imagen"), async (req, res) => {
   try {
     // 🔹 Limpiar los datos del body, quitando duplicados o vacíos
