@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import VistaEmpleados from './VistaEmpleados';
 import './AdminPanel.css';
 
 const AdminPanel = () => {
@@ -13,18 +14,15 @@ const AdminPanel = () => {
     const [productoEditando, setProductoEditando] = useState(null);
     const [formProducto, setFormProducto] = useState({
         nombre: '',
-        categoria_id: '',
+        categoria: '',
         material: '',
         precio: '',
         stock: '',
-        descripcion: '',
-        descripcion_larga: '',
+        descripcion_corta: '',
         imagen_url: '',
-        dimensiones: '',
-        peso_kg: '',
-        capacidad_ml: '',
         destacado: false
     });
+    const [empleados, setEmpleados] = useState([]);
 
     // TIPOS DE SOLICITUD CON ICONOS Y COLORES MEJORADOS
     const tiposSolicitud = {
@@ -117,58 +115,6 @@ const AdminPanel = () => {
         }
     ];
 
-    // DATOS DE EJEMPLO - PRODUCTOS
-    const productosEjemplo = [
-        {
-            id: 1,
-            categoria_id: 1,
-            nombre: "Urna Clásica de Nogal",
-            descripcion: "Diseño tradicional en madera de nogal macizo",
-            descripcion_larga: "Urna elaborada en nogal de primera calidad con acabados brillantes y detalles tallados a mano. Perfecta para ceremonias tradicionales.",
-            material: "Madera de nogal",
-            precio: 480.00,
-            stock: 15,
-            imagen_url: "https://placehold.co/400x300/F59E0B/FFFFFF?text=Urna+Nogal",
-            dimensiones: "25x25x35 cm",
-            peso_kg: 3.5,
-            capacidad_ml: 3000,
-            destacado: true,
-            activo: true
-        },
-        {
-            id: 2,
-            categoria_id: 2,
-            nombre: "Urna Minimalista Blanca",
-            descripcion: "Diseño contemporáneo en resina ecológica",
-            descripcion_larga: "Urna moderna con líneas limpias y acabado mate. Fabricada con materiales ecológicos y biodegradables.",
-            material: "Resina ecológica",
-            precio: 520.00,
-            stock: 8,
-            imagen_url: "https://placehold.co/400x300/10B981/FFFFFF?text=Urna+Modern",
-            dimensiones: "20x20x30 cm",
-            peso_kg: 2.8,
-            capacidad_ml: 2800,
-            destacado: true,
-            activo: true
-        },
-        {
-            id: 3,
-            categoria_id: 3,
-            nombre: "Colgante Corazón Plateado",
-            descripcion: "Joyería conmemorativa en plata 925",
-            descripcion_larga: "Elegante colgante en forma de corazón que permite conservar una pequeña porción de cenizas. Incluye cadena de plata.",
-            material: "Plata 925",
-            precio: 280.00,
-            stock: 25,
-            imagen_url: "https://placehold.co/400x300/A855F7/FFFFFF?text=Joyas",
-            dimensiones: "3x3x1 cm",
-            peso_kg: 0.05,
-            capacidad_ml: 5,
-            destacado: false,
-            activo: true
-        }
-    ];
-
     useEffect(() => {
         const cargarDatos = async () => {
             try {
@@ -183,21 +129,16 @@ const AdminPanel = () => {
                 // agregamos valores por defecto para evitar errores visuales
                 const productosNormalizados = data.map(p => ({
                     id: p.id || p.id_urna || 0,
-                    categoria_id: p.categoria_id || 1, // valor por defecto
+                    categoria_id: p.categoria_id || 1,
                     nombre: p.nombre || 'Sin nombre',
-                    descripcion: p.descripcion || 'Sin descripción',
-                    descripcion_larga: p.descripcion_larga || '',
+                    descripcion_corta: p.descripcion_corta || 'Sin descripción',
                     material: p.material || '',
                     precio: p.precio || 0,
                     stock: p.stock || 0,
                     imagen_url: p.imagen_url
-                        ? `http://localhost:5000${p.imagen_url}` // ✅ concatenamos directo, porque ya incluye "/uploads/..."
+                        ? `http://localhost:5000${p.imagen_url}`
                         : 'https://placehold.co/400x300?text=Sin+Imagen',
-
-                    dimensiones: p.dimensiones || 'N/A',
-                    peso_kg: p.peso_kg || 0,
-                    capacidad_ml: p.capacidad_ml || 0,
-                    destacado: p.destacado || false,
+                    destacado: !!p.destacado,
                     activo: p.activo ?? true
                 }));
 
@@ -238,12 +179,8 @@ const AdminPanel = () => {
                 material: producto.material,
                 precio: producto.precio,
                 stock: producto.stock,
-                descripcion: producto.descripcion,
-                descripcion_larga: producto.descripcion_larga,
+                descripcion_corta: producto.descripcion_corta,
                 imagen_url: producto.imagen_url,
-                dimensiones: producto.dimensiones,
-                peso_kg: producto.peso_kg,
-                capacidad_ml: producto.capacidad_ml,
                 destacado: producto.destacado
             });
         } else {
@@ -254,12 +191,8 @@ const AdminPanel = () => {
                 material: '',
                 precio: '',
                 stock: '',
-                descripcion: '',
-                descripcion_larga: '',
+                descripcion_corta: '',
                 imagen_url: '',
-                dimensiones: '',
-                peso_kg: '',
-                capacidad_ml: '',
                 destacado: false
             });
         }
@@ -270,27 +203,21 @@ const AdminPanel = () => {
 
     const guardarProducto = async (e) => {
         e.preventDefault();
-
         try {
             const formData = new FormData();
-
             // ✅ Asegurar que categoria sea un número entero válido
-        const categoriaId = parseInt(formProducto.categoria, 10);
-        if (isNaN(categoriaId)) {
-            alert("Debes seleccionar una categoría válida");
-            return;
-        }
+            const categoriaId = parseInt(formProducto.categoria, 10);
+            if (isNaN(categoriaId)) {
+                alert("Debes seleccionar una categoría válida");
+                return;
+            }
 
             formData.append('nombre', formProducto.nombre);
-            formData.append('categoria_id', parseInt(formProducto.categoria, 10));
+            formData.append('categoria_id', categoriaId);
             formData.append('material', formProducto.material);
             formData.append('precio', formProducto.precio);
             formData.append('stock', formProducto.stock);
-            formData.append('descripcion', formProducto.descripcion);
-            formData.append('descripcion_larga', formProducto.descripcion_larga);
-            formData.append('dimensiones', formProducto.dimensiones);
-            formData.append('peso_kg', formProducto.peso_kg);
-            formData.append('capacidad_ml', formProducto.capacidad_ml);
+            formData.append('descripcion_corta', formProducto.descripcion_corta);
             formData.append('destacado', formProducto.destacado);
 
             // Agregar imagen solo si hay archivo seleccionado
@@ -341,17 +268,42 @@ const AdminPanel = () => {
     };
 
 
-    const eliminarProducto = (id) => {
+    const eliminarProducto = async (id) => {
         if (window.confirm('¿Estás seguro de que quieres eliminar este producto?')) {
-            setProductos(prev => prev.filter(p => p.id !== id));
+            try {
+                await axios.delete(`http://localhost:5000/api/urnas/${id}`);
+                setProductos(prev => prev.filter(p => p.id !== id));
+                alert('🗑️ Producto eliminado correctamente');
+            } catch (error) {
+                console.error('Error al eliminar producto:', error);
+                alert('❌ No se pudo eliminar el producto');
+            }
         }
     };
 
-    const toggleDestacado = (id) => {
-        setProductos(prev => prev.map(p =>
-            p.id === id ? { ...p, destacado: !p.destacado } : p
-        ));
+    const toggleDestacado = async (id) => {
+        const producto = productos.find(p => p.id === id);
+        if (!producto) return;
+
+        try {
+            const nuevoEstado = !producto.destacado;
+
+            const formData = new FormData();
+            formData.append('destacado', nuevoEstado);
+
+            await axios.put(`http://localhost:5000/api/urnas/${id}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            setProductos(prev =>
+                prev.map(p => p.id === id ? { ...p, destacado: nuevoEstado } : p)
+            );
+        } catch (error) {
+            console.error('Error al cambiar destacado:', error);
+            alert('❌ No se pudo actualizar el estado de destacado');
+        }
     };
+
 
     // ESTADÍSTICAS
     const estadisticas = {
@@ -360,6 +312,13 @@ const AdminPanel = () => {
         totalProductos: productos.length,
         stockBajo: productos.filter(p => p.stock < 5).length
     };
+
+    // Estadísticas de empleados
+    estadisticas.totalEmpleados = empleados.length;
+    estadisticas.empleadosActivos = empleados.filter(e => e.activo).length;
+    estadisticas.empleadosInactivos = empleados.filter(e => !e.activo).length;
+
+
 
     const formatearFecha = (fecha) => {
         return new Date(fecha).toLocaleString('es-ES', {
@@ -504,7 +463,7 @@ const AdminPanel = () => {
                     </div>
 
                     <h4 className="producto-nombre">{producto.nombre}</h4>
-                    <p className="producto-descripcion">{producto.descripcion}</p>
+                    <p className="producto-descripcion">{producto.descripcion_corta}</p>
 
                     <div className="producto-detalles">
                         <div className="detalle-item">
@@ -516,10 +475,6 @@ const AdminPanel = () => {
                             <span className={`detalle-value ${producto.stock < 5 ? 'stock-bajo' : ''}`}>
                                 {producto.stock} unidades
                             </span>
-                        </div>
-                        <div className="detalle-item">
-                            <span className="detalle-label">Dimensiones:</span>
-                            <span className="detalle-value">{producto.dimensiones}</span>
                         </div>
                     </div>
                 </div>
@@ -603,35 +558,58 @@ const AdminPanel = () => {
                         >
                             Gestión de Urnas
                         </button>
+                        <button
+                            className={`vista-btn ${vistaActiva === 'empleados' ? 'activa' : ''}`}
+                            onClick={() => setVistaActiva('empleados')}
+                        >
+                            👥 Empleados
+                        </button>
+
                     </div>
 
                     {/* ESTADÍSTICAS */}
                     <div className="estadisticas-grid">
+                        {/* Tarjeta 1 */}
                         <div className="stat-card total">
-                            <div className="stat-icon">{vistaActiva === 'solicitudes' ? '' : ''}</div>
                             <div className="stat-content">
                                 <div className="stat-number">
-                                    {vistaActiva === 'solicitudes' ? estadisticas.totalSolicitudes : estadisticas.totalProductos}
+                                    {vistaActiva === 'solicitudes'
+                                        ? estadisticas.totalSolicitudes
+                                        : vistaActiva === 'productos'
+                                            ? estadisticas.totalProductos
+                                            : estadisticas.empleadosActivos}
                                 </div>
                                 <div className="stat-label">
-                                    {vistaActiva === 'solicitudes' ? 'Total Solicitudes' : 'Total Productos'}
+                                    {vistaActiva === 'solicitudes'
+                                        ? 'Total Solicitudes'
+                                        : vistaActiva === 'productos'
+                                            ? 'Total Productos'
+                                            : 'Empleados Activos'}
                                 </div>
                             </div>
                         </div>
+
+                        {/* Tarjeta 2 */}
                         <div className="stat-card nuevas">
-                            <div className="stat-icon">
-                                {vistaActiva === 'solicitudes' ? '' : ''}
-                            </div>
                             <div className="stat-content">
                                 <div className="stat-number">
-                                    {vistaActiva === 'solicitudes' ? estadisticas.nuevasSolicitudes : estadisticas.stockBajo}
+                                    {vistaActiva === 'solicitudes'
+                                        ? estadisticas.nuevasSolicitudes
+                                        : vistaActiva === 'productos'
+                                            ? estadisticas.stockBajo
+                                            : estadisticas.empleadosInactivos}
                                 </div>
                                 <div className="stat-label">
-                                    {vistaActiva === 'solicitudes' ? 'Nuevas' : 'Stock Bajo'}
+                                    {vistaActiva === 'solicitudes'
+                                        ? 'Nuevas'
+                                        : vistaActiva === 'productos'
+                                            ? 'Stock Bajo'
+                                            : 'Empleados Inactivos'}
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
 
@@ -740,6 +718,12 @@ const AdminPanel = () => {
                 </>
             )}
 
+            {vistaActiva === "empleados" && (
+                <VistaEmpleados onEmpleadosCargados={(lista) => setEmpleados(lista)} />
+            )}
+
+
+
             {/* MODAL PRODUCTO */}
             {modalProductoAbierto && (
                 <div className="modal-overlay" onClick={() => setModalProductoAbierto(false)}>
@@ -817,8 +801,8 @@ const AdminPanel = () => {
                                     <label>Descripción Corta *</label>
                                     <input
                                         type="text"
-                                        value={formProducto.descripcion}
-                                        onChange={(e) => setFormProducto(prev => ({ ...prev, descripcion: e.target.value }))}
+                                        value={formProducto.descripcion_corta}
+                                        onChange={(e) => setFormProducto(prev => ({ ...prev, descripcion_corta: e.target.value }))}
                                         required
                                     />
                                 </div>

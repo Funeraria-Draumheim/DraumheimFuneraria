@@ -40,18 +40,28 @@ router.get("/urnas", async (req, res) => {
 // ✅ Ruta para registrar una urna con imagen
 router.post("/urnas", upload.single("imagen"), async (req, res) => {
   try {
-    console.log("🧾 Campos recibidos:", req.body);
+    // 🔹 Limpiar los datos del body, quitando duplicados o vacíos
+    const rawData = req.body;
 
-    let { nombre, material, precio, stock, descripcion_corta, categoria_id } = req.body;
-
-    // ✅ Conversión segura de tipo
-    categoria_id = parseInt(categoria_id, 10);
-
-    if (isNaN(categoria_id)) {
-      return res.status(400).json({ error: "El campo categoria_id es obligatorio y debe ser un número válido" });
+    // Crear un nuevo objeto limpio
+    const data = {};
+    for (const key in rawData) {
+      // Evita duplicados y campos vacíos
+      if (!data[key] && rawData[key] && rawData[key].trim() !== "") {
+        data[key] = rawData[key];
+      }
     }
 
+    console.log("🧹 Datos recibidos y limpiados:", data);
+
+    const { nombre, material, precio, stock, descripcion_corta, categoria_id } = data;
+
     const imagenUrl = req.file ? `/uploads/urnas/${req.file.filename}` : null;
+
+    // Validación mínima
+    if (!categoria_id || !nombre || !material || !precio || !stock || !descripcion_corta) {
+      return res.status(400).json({ error: "Faltan campos obligatorios" });
+    }
 
     const result = await pool.query(
       `INSERT INTO urnas (categoria_id, nombre, material, precio, stock, descripcion_corta, imagen_url)

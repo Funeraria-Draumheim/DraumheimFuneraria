@@ -308,6 +308,11 @@ app.post("/api/planes-cremacion", async (req, res) => {
     }
 });
 
+// ruta empleados
+const empleadosRoutes = require('./routes/empleados.routes');
+app.use('/api', empleadosRoutes);
+
+
 app.listen(5000, () => {
   console.log('Servidor en http://localhost:5000');
 });
