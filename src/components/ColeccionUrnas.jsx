@@ -314,32 +314,37 @@ const ColeccionUrnas = () => {
   const openEditarPerfil = () => setIsEditarPerfilOpen(true);
   const closeEditarPerfil = () => setIsEditarPerfilOpen(false);
 
-  const urnasData = {
-    tradicionales: [
-      { nombre: "Urna Clásica de Nogal", material: "Madera de nogal", precio: "S/480", descripcion: "Diseño tradicional y elegante con acabados brillantes.", img: "../public/urna-nogal.jpg" },
-      { nombre: "Urna Mármol Blanco", material: "Mármol italiano", precio: "S/780", descripcion: "Acabado pulido con grabado artesanal.", img: "../public/urna-marmol.jpg" },
-      { nombre: "Urna Clásica de Roble", material: "Roble sólido", precio: "S/550", descripcion: "Urna robusta con barniz satinado.", img: "../public/urna-roble.jpg" },
-      { nombre: "Urna Ángeles Dorados", material: "Metal con baño dorado", precio: "S/620", descripcion: "Detalles dorados en relieve con motivos angelicales.", img: "../public/urna-dorada.jpg" },
-      { nombre: "Urna Cerámica Floral", material: "Cerámica esmaltada", precio: "S/410", descripcion: "Decorada a mano con flores pintadas.", img: "../public/urna-ceramica.jpg" },
-      { nombre: "Urna Piedra Natural", material: "Piedra tallada", precio: "S/670", descripcion: "Tallada a mano con textura rugosa y natural.", img: "../public/urna-piedra.jpg" },
-    ],
-    modernas: [
-      { nombre: "Urna Minimalista Blanca", material: "Resina ecológica", precio: "S/520", descripcion: "Diseño limpio y contemporáneo de líneas suaves.", img: "../public/urna-blanca.jpg" },
-      { nombre: "Urna Geométrica Negra", material: "Metal mate", precio: "S/680", descripcion: "Estilo moderno con forma poligonal.", img: "../public/urna-negra.jpg" },
-      { nombre: "Urna Cristal Transparente", material: "Vidrio templado", precio: "S/740", descripcion: "Permite ver la delicada urna interna de porcelana.", img: "../public/urna-cristal.jpg" },
-      { nombre: "Urna Abstracta Azul", material: "Cerámica artesanal", precio: "S/560", descripcion: "Tonos azules que evocan serenidad y cielo.", img: "../public/urna-azul.jpg" },
-      { nombre: "Urna Eco Verde", material: "Fibra biodegradable", precio: "S/490", descripcion: "Urna ecológica que puede plantarse con semillas.", img: "../public/urna-eco.jpg" },
-      { nombre: "Urna de Hormigón", material: "Cemento pulido", precio: "S/600", descripcion: "Diseño industrial para espacios contemporáneos.", img: "../public/urna-hormigon.jpg" },
-    ],
-    joyas: [
-      { nombre: "Colgante Corazón Plateado", material: "Plata 925", precio: "S/280", descripcion: "Permite conservar una pequeña porción de cenizas.", img: "../public/joyas.png" },
-      { nombre: "Colgante Alas Doradas", material: "Acero con baño dorado", precio: "S/320", descripcion: "Símbolo de libertad y recuerdo eterno.", img: "../public/alas.webp" },
-      { nombre: "Anillo Memorial", material: "Acero inoxidable", precio: "S/260", descripcion: "Diseño sobrio con compartimento interno.", img: "../public/anillo.webp" },
-      { nombre: "Pulsera Infinito", material: "Cuero y acero", precio: "S/230", descripcion: "Símbolo de unión eterna.", img: "../public/pulsera.jpg" },
-      { nombre: "Colgante de Cristal Azul", material: "Cristal templado", precio: "S/310", descripcion: "Transmite paz y serenidad.", img: "../public/colgante.jpg" },
-      { nombre: "Medallón Grabado", material: "Plata y vidrio", precio: "S/350", descripcion: "Permite grabar nombre y fecha.", img: "../public/medallon.jpg" },
-    ]
-  };
+
+  const [urnas, setUrnas] = useState([]);
+
+  useEffect(() => {
+    const fetchUrnas = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/urnas');
+        if (!response.ok) throw new Error('Error al cargar urnas');
+        const data = await response.json();
+
+        // Asegura que todas las imágenes tengan la ruta completa del servidor
+        const urnasConRuta = data.map(u => ({
+          ...u,
+          imagen_url: u.imagen_url?.startsWith('/uploads/')
+            ? `http://localhost:5000${u.imagen_url}`
+            : u.imagen_url
+        }));
+
+        setUrnas(urnasConRuta);
+      } catch (error) {
+        console.error('Error al obtener urnas:', error);
+      }
+    };
+
+    fetchUrnas();
+  }, []);
+
+  const urnasTradicionales = urnas.filter(u => u.categoria_id === 1);
+  const urnasModernas = urnas.filter(u => u.categoria_id === 2);
+  const joyasCenizas = urnas.filter(u => u.categoria_id === 3);
+
 
   return (
     <div className="urnas-page-container">
@@ -355,66 +360,63 @@ const ColeccionUrnas = () => {
         <section className="categoria">
           <h2>Urnas Tradicionales</h2>
           <div className="grid-urnas">
-            {urnasData.tradicionales.map((u, i) => (
+            {urnasTradicionales.length > 0 ? urnasTradicionales.map((u, i) => (
               <div key={i} className="urna-card" onClick={() => setSelectedUrna(u)}>
                 <div className="urna-card-inner">
                   <div className="urna-card-front">
-                    <img src={u.img} alt={u.nombre} />
+                    <img src={u.imagen_url} alt={u.nombre} />
                     <p>{u.nombre}</p>
                   </div>
                   <div className="urna-card-back">
                     <h4>{u.nombre}</h4>
-                    <p>{u.descripcion}</p>
-                    <p><strong>Material:</strong> {u.material}</p>
-                    <p><strong>Precio:</strong> {u.precio}</p>
+                    <p>{u.descripcion_corta}</p>
+                    <p><strong>Precio:</strong> S/ {u.precio}</p>
                   </div>
                 </div>
               </div>
-            ))}
+            )) : <p>No hay urnas tradicionales disponibles.</p>}
           </div>
         </section>
 
         <section className="categoria">
           <h2>Urnas Modernas</h2>
           <div className="grid-urnas">
-            {urnasData.modernas.map((u, i) => (
+            {urnasModernas.length > 0 ? urnasModernas.map((u, i) => (
               <div key={i} className="urna-card" onClick={() => setSelectedUrna(u)}>
                 <div className="urna-card-inner">
                   <div className="urna-card-front">
-                    <img src={u.img} alt={u.nombre} />
+                    <img src={u.imagen_url} alt={u.nombre} />
                     <p>{u.nombre}</p>
                   </div>
                   <div className="urna-card-back">
                     <h4>{u.nombre}</h4>
-                    <p>{u.descripcion}</p>
-                    <p><strong>Material:</strong> {u.material}</p>
-                    <p><strong>Precio:</strong> {u.precio}</p>
+                    <p>{u.descripcion_corta}</p>
+                    <p><strong>Precio:</strong> S/ {u.precio}</p>
                   </div>
                 </div>
               </div>
-            ))}
+            )) : <p>No hay urnas modernas disponibles.</p>}
           </div>
         </section>
 
         <section className="categoria">
           <h2>Joyas de Cenizas</h2>
           <div className="grid-urnas">
-            {urnasData.joyas.map((u, i) => (
+            {joyasCenizas.length > 0 ? joyasCenizas.map((u, i) => (
               <div key={i} className="urna-card" onClick={() => setSelectedUrna(u)}>
                 <div className="urna-card-inner">
                   <div className="urna-card-front">
-                    <img src={u.img} alt={u.nombre} />
+                    <img src={u.imagen_url} alt={u.nombre} />
                     <p>{u.nombre}</p>
                   </div>
                   <div className="urna-card-back">
                     <h4>{u.nombre}</h4>
-                    <p>{u.descripcion}</p>
-                    <p><strong>Material:</strong> {u.material}</p>
-                    <p><strong>Precio:</strong> {u.precio}</p>
+                    <p>{u.descripcion_corta}</p>
+                    <p><strong>Precio:</strong> S/ {u.precio}</p>
                   </div>
                 </div>
               </div>
-            ))}
+            )) : <p>No hay joyas disponibles.</p>}
           </div>
         </section>
       </main>
@@ -423,11 +425,11 @@ const ColeccionUrnas = () => {
         <div className="modal-overlay" onClick={() => setSelectedUrna(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-left">
-              <img src={selectedUrna.img} alt={selectedUrna.nombre} />
+              <img src={selectedUrna.imagen_url} alt={selectedUrna.nombre} />
             </div>
             <div className="modal-right">
               <h3>{selectedUrna.nombre}</h3>
-              <p>{selectedUrna.descripcion}</p>
+              <p>{selectedUrna.descripcion_corta}</p>
               <p><strong>Material:</strong> {selectedUrna.material}</p>
               <p><strong>Precio:</strong> {selectedUrna.precio}</p>
               <button className="asesoria-btn">Solicitar Asesoría</button>

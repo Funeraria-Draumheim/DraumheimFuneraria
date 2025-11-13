@@ -2,18 +2,27 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
+const path = require("path");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+//ruta urnas//
+const urnasRoutes = require('./routes/urnas.routes');
+app.use('/api', urnasRoutes);
 
 const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
   database: 'funeraria',
-  password: 'Picholin_9',
+  password: '12345678',
   port: 5432,
 });
+
+const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
 
 //REGISTER
 app.post('/register', async (req, res) => {
@@ -316,6 +325,10 @@ app.post("/api/planes-cremacion", async (req, res) => {
         res.status(500).json({ error: "Error al guardar en la base de datos" });
     }
 });
+
+// ruta empleados
+const empleadosRoutes = require('./routes/empleados.routes');
+app.use('/api', empleadosRoutes);
 
 app.listen(5000, () => {
   console.log('Servidor en http://localhost:5000');

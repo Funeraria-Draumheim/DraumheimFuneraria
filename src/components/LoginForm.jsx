@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './LoginForm.css';
+import TwoFAModal from './twoFAModal';
 
 function LoginForm() {
+
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [show2FA, setShow2FA] = useState(false);
+  const [userEmailFor2FA, setUserEmailFor2FA] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -23,7 +28,8 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/login', {
+      //Aqui verificamos las credenciales
+      const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,13 +47,47 @@ function LoginForm() {
       }
 
       console.log('Usuario logueado:', data.user);
-      localStorage.setItem('usuario', JSON.stringify(data.user)); // <- CORREGIDO
-      navigate('/');
+
+      setUserEmailFor2FA(formData.email);
+      setShow2FA(true)
 
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handle2FAVerify = async (code) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/verify-2fa', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: userEmailFor2FA,
+          code: code
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Codigo invalido');
+      }
+
+      console.log('Usuaro verificado;', data.user);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('token', data.token);
+
+      if (data.user.rol === 'admin' || data.user.rol === 'empleado') {
+        navigate('/admin-panel');
+      } else {
+        navigate('/home');
+      }
+    } catch (err) {
+      throw new Error ('Codigo de verificacion incorrecto');
     }
   };
 
@@ -66,7 +106,7 @@ function LoginForm() {
               type="email"
               id="email"
               name="email"
-              placeholder="nombre@ejemplo.com"
+              placeholder="draumheim@gmail.com"
               value={formData.email}
               onChange={(e) => setFormData({
                 ...formData,
@@ -99,8 +139,16 @@ function LoginForm() {
             {loading ? 'CARGANDO...' : 'INICIAR SESIÓN'}
           </button>
         </form>
+        <TwoFAModal
+          isOpen={show2FA}
+          onClose={() => setShow2FA(false)}
+          onVerify={handle2FAVerify}
+          userEmail={userEmailFor2FA}
+        />
       </div>
     </div>
+
+
   );
 }
 

@@ -529,7 +529,7 @@ const AsesoriaModal = ({ isOpen, onClose }) => {
                                 </select>
                             </div>
                             <div className="input-group">
-                                <label htmlFor="fecha_servicio">Fecha Tentativa del Servicio</label>
+                                <label htmlFor="fecha_servicio">Fecha del Servicio</label>
                                 <input
                                     type="date"
                                     id="fecha_servicio"
@@ -578,22 +578,6 @@ const AsesoriaModal = ({ isOpen, onClose }) => {
                                     <option value="aire-libre">Al Aire Libre (+S/ 600)</option>
                                 </select>
                             </div>
-                        </div>
-
-                        <div className="input-group">
-                            <label htmlFor="cantidad_asistentes">Cantidad Estimada de Asistentes</label>
-                            <select 
-                                id="cantidad_asistentes" 
-                                name="cantidad_asistentes" 
-                                value={formData.cantidad_asistentes}
-                                onChange={handleChange}
-                            >
-                                <option value="">Selecciona cantidad</option>
-                                <option value="1-20">1-20 personas</option>
-                                <option value="21-50">21-50 personas</option>
-                                <option value="51-100">51-100 personas</option>
-                                <option value="100+">Más de 100 personas</option>
-                            </select>
                         </div>
                     </div>
 

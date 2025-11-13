@@ -302,6 +302,111 @@ const FAQItem = ({ question, answer }) => {
     );
 };
 
+// Distancia del punto de inicio al final
+const CalculadorDistancia = ({ onCostoAdicionalChange }) => {
+    const [direcciones, setDirecciones] = useState({
+        inicio: '',
+        misa: '',
+        velatorio: '',
+        cementerio: ''
+    });
+    const [costoAdicional, setCostoAdicional] = useState(0);
+    const [mostrarCalculador, setMostrarCalculador] = useState(false);
+
+    const calcularDistancia = () => {
+        const distanciaTotal = Object.values(direcciones).filter(dir => dir.trim() !== '').length * 10;
+        const costo = distanciaTotal * 25;
+
+        setCostoAdicional(costo);
+        onCostoAdicionalChange(costo);
+    };
+
+    const handleDireccionChange = (tipo, valor) => {
+        const nuevasDirecciones = {
+            ...direcciones,
+            [tipo]: valor
+        };
+        setDirecciones(nuevasDirecciones);
+
+        if (Object.values(nuevasDirecciones).some(dir => dir.trim() !== '')) {
+            setTimeout(calcularDistancia, 500);
+        }
+    };
+
+    return (
+        <div className="calculador-distancia">
+            <div className="calculador-header">
+                <h4>Calculador de Distancia y Costo Adicional</h4>
+                <button
+                    type="button"
+                    className="toggle-calculador"
+                    onClick={() => setMostrarCalculador(!mostrarCalculador)}
+                >
+                    {mostrarCalculador ? 'Ocultar' : 'Calcular Distancia'}
+                </button>
+            </div>
+
+            {mostrarCalculador && (
+                <div className="calculador-content">
+                    <div className="direcciones-grid">
+                        <div className="direccion-group">
+                            <label>Dirección de Inicio (Recogida):</label>
+                            <input
+                                type="text"
+                                placeholder="Ej: Av. Principal 123, Lima"
+                                value={direcciones.inicio}
+                                onChange={(e) => handleDireccionChange('inicio', e.target.value)}
+                            />
+                        </div>
+
+                        <div className="direccion-group">
+                            <label>Dirección de Misa:</label>
+                            <input
+                                type="text"
+                                placeholder="Ej: Iglesia San Pedro, Miraflores"
+                                value={direcciones.misa}
+                                onChange={(e) => handleDireccionChange('misa', e.target.value)}
+                            />
+                        </div>
+
+                        <div className="direccion-group">
+                            <label>Dirección del Velatorio:</label>
+                            <input
+                                type="text"
+                                placeholder="Ej: Capilla Draumheim, San Isidro"
+                                value={direcciones.velatorio}
+                                onChange={(e) => handleDireccionChange('velatorio', e.target.value)}
+                            />
+                        </div>
+
+                        <div className="direccion-group">
+                            <label>Dirección del Cementerio:</label>
+                            <input
+                                type="text"
+                                placeholder="Ej: Cementerio Jardines de la Paz, Surco"
+                                value={direcciones.cementerio}
+                                onChange={(e) => handleDireccionChange('cementerio', e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    {costoAdicional > 0 && (
+                        <div className="costo-resultado">
+                            <div className="costo-info">
+                                <span className="costo-label">Costo adicional por transporte:</span>
+                                <span className="costo-valor">S/ {costoAdicional.toFixed(2)}</span>
+                            </div>
+                            <p className="costo-nota">
+                                * Este costo se agregará al total del plan seleccionado
+                            </p>
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};
+
 // Componente Modal para solicitar plan
 const PlanModal = ({ isOpen, onClose, planType, onSubmit }) => {
     const modalRef = useRef(null);
@@ -310,10 +415,12 @@ const PlanModal = ({ isOpen, onClose, planType, onSubmit }) => {
         email: '',
         telefono: '',
         capilla: '',
+        otra_capilla: '',
         fecha_servicio: '',
         cantidad_asistentes: '',
         mensaje_adicional: ''
     });
+    const [costoAdicional, setCostoAdicional] = useState(0);
 
     // Datos de capillas en Perú (basado en investigación real)
     const capillasPeru = [
@@ -328,7 +435,8 @@ const PlanModal = ({ isOpen, onClose, planType, onSubmit }) => {
         { value: 'chiclayo_moderna', label: 'Capilla Moderna - Chiclayo' },
         { value: 'piura_tradicional', label: 'Capilla Tradicional - Piura' },
         { value: 'iquitos_amazonica', label: 'Capilla Amazónica - Iquitos' },
-        { value: 'huancayo_central', label: 'Capilla Central - Huancayo' }
+        { value: 'huancayo_central', label: 'Capilla Central - Huancayo' },
+        { value: 'otra', label: 'Otra (especificar dirección)' }
     ];
 
     useEffect(() => {
@@ -359,14 +467,28 @@ const PlanModal = ({ isOpen, onClose, planType, onSubmit }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit(formData);
+
+        // Combinar datos del formulario con el costo adicional
+        const datosEnvio = {
+            ...formData,
+            tipo_plan: planType,
+            costo_adicional_transporte: costoAdicional,
+            capilla_final: formData.capilla === 'otra' ? formData.otra_capilla : formData.capilla
+        };
+
+        onSubmit(datosEnvio);
     };
 
     const handleChange = (e) => {
+        const { name, value } = e.target;
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value
+            [name]: value
         });
+    };
+
+    const handleCostoAdicionalChange = (costo) => {
+        setCostoAdicional(costo);
     };
 
     if (!isOpen) return null;
@@ -377,6 +499,15 @@ const PlanModal = ({ isOpen, onClose, planType, onSubmit }) => {
             case 'estándar': return 'S/ 6,800';
             case 'premium': return 'S/ 12,500';
             default: return '';
+        }
+    };
+
+    const getPlanBasePrice = () => {
+        switch (planType) {
+            case 'básico': return 3500;
+            case 'estándar': return 6800;
+            case 'premium': return 12500;
+            default: return 0;
         }
     };
 
@@ -392,11 +523,13 @@ const PlanModal = ({ isOpen, onClose, planType, onSubmit }) => {
         }
     };
 
+    const totalConAdicional = getPlanBasePrice() + costoAdicional;
+
     return (
         <div className="modal-overlay-plan">
             <div className="modal-content-plan" ref={modalRef}>
                 <button className="modal-close-plan" onClick={onClose}>×</button>
-                
+
                 <div className="modal-header-plan">
                     <h2>Solicitar Plan {planType.charAt(0).toUpperCase() + planType.slice(1)}</h2>
                     <p>Complete el formulario para que nos contactemos con usted</p>
@@ -411,6 +544,24 @@ const PlanModal = ({ isOpen, onClose, planType, onSubmit }) => {
                                 <li key={index}>✓ {feature}</li>
                             ))}
                         </ul>
+
+                        {/* Aqui mostraremos el costo total*/}
+                        {planType === 'premium' && costoAdicional > 0 && (
+                            <div className="costo-total-plan">
+                                <div className="costo-base">
+                                    <span>Precio base:</span>
+                                    <span>S/ {getPlanBasePrice().toLocaleString()}</span>
+                                </div>
+                                <div className="costo-adicional">
+                                    <span>Costo adicional transporte:</span>
+                                    <span>S/ {costoAdicional.toFixed(2)}</span>
+                                </div>
+                                <div className="costo-total">
+                                    <strong>Total:</strong>
+                                    <strong>S/ {totalConAdicional.toLocaleString()}</strong>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="form-row-plan">
@@ -473,9 +624,31 @@ const PlanModal = ({ isOpen, onClose, planType, onSubmit }) => {
                         </div>
                     </div>
 
+                    {formData.capilla === 'otra' && (
+                        <div className="form-group-plan">
+                            <label htmlFor="otra_capilla">Especifique la dirección de la capilla *</label>
+                            <input
+                                type="text"
+                                id="otra_capilla"
+                                name="otra_capilla"
+                                value={formData.otra_capilla}
+                                onChange={handleChange}
+                                required={formData.capilla === 'otra'}
+                                placeholder="Ingrese la dirección completa de la capilla preferida"
+                            />
+                        </div>
+                    )}
+
+                    {/* Aqui se calculara la distancia*/}
+                    {planType === 'premium' && (
+                        <CalculadorDistancia
+                            onCostoAdicionalChange={handleCostoAdicionalChange}
+                        />
+                    )}
+
                     <div className="form-row-plan">
                         <div className="form-group-plan">
-                            <label htmlFor="fecha_servicio">Fecha Tentativa del Servicio</label>
+                            <label htmlFor="fecha_servicio">Fecha del Servicio</label>
                             <input
                                 type="date"
                                 id="fecha_servicio"
@@ -594,29 +767,29 @@ const FuneralTradicional = () => {
     };
 
     const handlePlanSubmit = async (formData) => {
-    try {
-        const datos = {
-            ...formData,
-            tipo_plan: selectedPlan // "básico", "estándar" o "premium"
-        };
+        try {
+            const datos = {
+                ...formData,
+                tipo_plan: selectedPlan // "básico", "estándar" o "premium"
+            };
 
-        const response = await fetch("http://localhost:5000/api/planes-funerarios", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(datos)
-        });
+            const response = await fetch("http://localhost:5000/api/planes-funerarios", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(datos)
+            });
 
-        if (!response.ok) throw new Error("Error al enviar los datos");
+            if (!response.ok) throw new Error("Error al enviar los datos");
 
-        const data = await response.json();
-        console.log("Plan guardado en BD:", data);
-        alert(`Solicitud para plan ${selectedPlan} enviada correctamente. Nos contactaremos pronto.`);
-        closePlanModal();
-    } catch (error) {
-        console.error("Error al enviar plan:", error);
-        alert("Error al enviar la solicitud. Por favor intente nuevamente.");
-    }
-};
+            const data = await response.json();
+            console.log("Plan guardado en BD:", data);
+            alert(`Solicitud para plan ${selectedPlan} enviada correctamente. Nos contactaremos pronto.`);
+            closePlanModal();
+        } catch (error) {
+            console.error("Error al enviar plan:", error);
+            alert("Error al enviar la solicitud. Por favor intente nuevamente.");
+        }
+    };
 
 
     return (
@@ -835,7 +1008,7 @@ const FuneralTradicional = () => {
                                     <span>Ceremonia simple</span>
                                 </div>
                             </div>
-                            <button 
+                            <button
                                 className="plan-button-funeral basic-btn"
                                 onClick={() => openPlanModal('básico')}
                             >
@@ -880,7 +1053,7 @@ const FuneralTradicional = () => {
                                     <span>Libro de condolencias</span>
                                 </div>
                             </div>
-                            <button 
+                            <button
                                 className="plan-button-funeral standard-btn"
                                 onClick={() => openPlanModal('estándar')}
                             >
@@ -932,7 +1105,7 @@ const FuneralTradicional = () => {
                                     <span>Video memorial profesional</span>
                                 </div>
                             </div>
-                            <button 
+                            <button
                                 className="plan-button-funeral premium-btn"
                                 onClick={() => openPlanModal('premium')}
                             >
@@ -944,7 +1117,7 @@ const FuneralTradicional = () => {
             </div>
 
             {/* Modal para solicitar plan */}
-            <PlanModal 
+            <PlanModal
                 isOpen={isPlanModalOpen}
                 onClose={closePlanModal}
                 planType={selectedPlan}

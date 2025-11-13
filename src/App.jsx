@@ -8,7 +8,7 @@ import PlanFunerario from './components/PlanFunerario';
 import Urnas from './components/Urnas';
 import ColeccionUrnas from './components/ColeccionUrnas';
 import AdminPanel from './components/AdminPanel';
-import Identificate from './components/identificate'; // Nuevo componente
+import Identificate from './components/Identificate'; // Nuevo componente
 import './App.css';
 
 // Componente para el Panel Izquierdo (Imagen/Cita)
@@ -82,7 +82,7 @@ function App() {
       <Route path="/testimonios" element={<HomePage />} />
       <Route path="/contacto" element={<HomePage />} />
 
-      <Route path="/adminpanel" element={<AdminPanel />} />
+      <Route path="/admin-panel" element={<AdminPanel />} />
 
       {/* RUTA 404 - Página no encontrada */}
       <Route path="*" element={<HomePage />} />
