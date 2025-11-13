@@ -2,16 +2,24 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
+const path = require("path");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+//ruta urnas//
+const urnasRoutes = require('./routes/urnas.routes');
+app.use('/api', urnasRoutes);
+
+
 
 const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
   database: 'funeraria',
-  password: 'Badatitos0',
+  password: 'password123456',
   port: 5432,
 });
 
@@ -414,6 +422,13 @@ app.post("/api/planes-cremacion", async (req, res) => {
     }
 });
 
+// ruta empleados
+const empleadosRoutes = require('./routes/empleados.routes');
+app.use('/api', empleadosRoutes);
+
+
 app.listen(5000, () => {
   console.log('Servidor en http://localhost:5000');
 });
+
+
